@@ -41,4 +41,13 @@
 
         }
 
+        public function getPostById($id){
+            $this->db->query("SELECT * FROM posts WHERE id = :postId");
+
+            $this->db->bind(':postId', $id, null);
+            $row = $this->db->single();
+
+            return $row;
+        }
+
     }
