@@ -60,6 +60,17 @@ class Post
         }
     }
 
+    public function deletePost($postId){
+        $this->db->query('DELETE FROM posts WHERE id = :postId');
+        $this->db->bind(':postId', $postId, null);
+
+        if ($this->db->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function getPostById($id)
     {
         $this->db->query("SELECT * FROM posts WHERE id = :postId");
