@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 class Posts extends Controller
 {
 
@@ -18,12 +21,13 @@ class Posts extends Controller
 
     public function index()
     {
-        $posts = $this->postModel->getPosts();
-        $data = [
-            'posts' => $posts
-        ];
+        redirect('posts/getPage/1');
+        // $posts = $this->postModel->getPosts();
+        // $data = [
+        //     'posts' => $posts
+        // ];
 
-        $this->view('posts/index', $data);
+        // $this->view('posts/index', $data);
     }
 
     public function add()
@@ -166,5 +170,24 @@ class Posts extends Controller
         }
 
         redirect('posts');
+    }
+
+    public function getPage($page){
+        
+        if(!isset($page) || !$page){
+            $page = 1;
+        }
+        $pageSize = 2;
+        $posts = $this->postModel->getPostsPaginated((int)$page, $pageSize);
+        $data = [
+            'posts' => $posts,
+            'page' => (int)$page,
+            'hasNextPage' => $page > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1
+        ];
+
+        $this->view('posts/index', $data);
     }
 }
