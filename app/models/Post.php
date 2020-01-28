@@ -114,4 +114,11 @@ class Post
 
         return $row;
     }
+
+    public function getAuthorOfPostByPostId($postId){
+        $this->db->query("SELECT user_id FROM posts WHERE posts.id = :postId");
+        $this->db->bind(":postId", $postId, null);
+        $row = $this->db->single();
+        return $row;
+    }
 }
