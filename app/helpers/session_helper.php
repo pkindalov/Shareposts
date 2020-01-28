@@ -36,3 +36,12 @@
             return false;
         }
     }
+
+
+    function isAdmin(){
+        if(isset($_SESSION['user_id']) && $_SESSION['role'] == 'admin'){
+            return true;
+        }
+
+        return false;
+    }
