@@ -13,3 +13,7 @@
 
     //Site name
     define('SITENAME', 'SharePosts');
+
+    //USERS
+    define('ADMIN', 'admin');
+    define('USER', 'user');

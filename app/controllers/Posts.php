@@ -86,11 +86,16 @@ class Posts extends Controller
             //Sanitize post
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
+            $originalPostAuthor = $this->postModel->getAuthorOfPostByPostId($postId);
+            $userId = $originalPostAuthor->user_id;
+            $postContent = isAdmin() ? trim($_POST['body'] . " <p>Edited By Admin</p>") : trim($_POST['body']);
+           
+
             $data = [
                 'id' => $postId,
                 'title' => trim($_POST['title']),
-                'body' => trim($_POST['body']),
-                'user_id' => $_SESSION['user_id'],
+                'body' => $postContent,
+                'user_id' => $userId,
                 'title_err' => '',
                 'body_err' => ''
             ];
@@ -123,7 +128,7 @@ class Posts extends Controller
             $post = $this->postModel->getPostById($postId);
 
             //Check for owner
-            if ($post->user_id != $_SESSION['user_id']) {
+            if ($post->user_id != $_SESSION['user_id'] && !isAdmin()) {
                 redirect('posts');
             }
 
@@ -172,17 +177,20 @@ class Posts extends Controller
         redirect('posts');
     }
 
-    public function getPage($page){
-        
-        if(!isset($page) || !$page){
+    public function getPage($page)
+    {
+
+        if (!isset($page) || !$page) {
             $page = 1;
         }
-        $pageSize = 2;
-        $posts = $this->postModel->getPostsPaginated((int)$page, $pageSize);
+
+        $page = (int) $page;
+        $pageSize = 5;
+        $posts = $this->postModel->getPostsPaginated((int) $page, $pageSize);
         $data = [
             'posts' => $posts,
-            'page' => (int)$page,
-            'hasNextPage' => $page > 0,
+            'page' => (int) $page,
+            'hasNextPage' => count($posts) > 0,
             'hasPrevPage' => $page > 1,
             'nextPage' => $page + 1,
             'prevPage' => $page - 1
