@@ -10,6 +10,13 @@
         <li class="nav-item">
           <a class="nav-link" href="<?php echo URLROOT; ?>">Home</a>
         </li>
+
+        <?php if(isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] == ADMIN) : ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo URLROOT; ?>/users/listUsers">Users</a>
+          </li>
+        <?php endif; ?>  
+
         <li class="nav-item">
           <a class="nav-link" href="<?php echo URLROOT; ?>/pages/about">About</a>
         </li>
