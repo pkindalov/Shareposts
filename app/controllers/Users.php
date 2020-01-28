@@ -125,8 +125,8 @@ class Users extends Controller
                 $data['password_err'] = 'Please enter passord';
             }
 
-             //Check for user/email
-             if($this->userModel->findUserByEmail($data['email'])){
+            //Check for user/email
+            if ($this->userModel->findUserByEmail($data['email'])) {
                 //User found
             } else {
                 $data['email_err'] = 'No user found.';
@@ -138,17 +138,16 @@ class Users extends Controller
                 empty($data['password_err'])
             ) {
                 //Validated
-               //Check and set logged users
-               $loggedUser = $this->userModel->login($data['email'], $data['password']);
+                //Check and set logged users
+                $loggedUser = $this->userModel->login($data['email'], $data['password']);
 
-                if($loggedUser){
+                if ($loggedUser) {
                     //Create Session
-                   $this->createUserSession($loggedUser);
+                    $this->createUserSession($loggedUser);
                 } else {
                     $data['password_err'] = 'Email or Password incorrect';
                     $this->view('users/login', $data);
                 }
-
             } else {
                 $this->view('users/login', $data);
             }
@@ -166,14 +165,81 @@ class Users extends Controller
         }
     }
 
-    public function createUserSession($user){
+
+    public function listUsers($page)
+    {
+        if (!isset($page) || !$page) {
+            $page = 1;
+        }
+
+        $page = (int)$page;
+        $pageSize = 10;
+        $users = $this->userModel->getUsersPaginated($page, $pageSize);
+       
+        $data = [
+            'users' => $users,
+            'page' => $page,
+            'hasNextPage' => count($users) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1
+        ];
+
+        $this->view('users/listUsers', $data);
+    }
+
+
+    public function userProfile($userId){
+        $userId = htmlspecialchars($userId);
+        $userId = (int)$userId;
+        $user = $this->userModel->getUserById($userId);
+        $userPostsCount = $this->userModel->getUserPostsCount($userId);
+        $data = [
+            'user' => $user,
+            'postsCount' => $userPostsCount
+        ];
+
+        $this->view('users/userProfile', $data);
+    }
+
+    public function getUserPosts($url){
+        // print_r($url);
+        $userId = extractUserId($url);
+        $page = extractPageNum($url);
+        $pageSize = 10;
+        $userPosts = $this->userModel->getUsersPostWithPag($userId, $page, $pageSize);
+        $userName =  $this->userModel->getUserById($userId);
+       
+        
+        $data = [
+            'posts' => $userPosts,
+            'page' => $page,
+            'userId' => $userId,
+            'userName' => $userName,
+            'hasNextPage' => count($userPosts) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1
+        ];
+        // print_r($data);
+
+        // echo $queryStr;
+        // var_dump(explode('&', $url));
+        $this->view('users/posts', $data);
+    }
+
+
+    public function createUserSession($user)
+    {
         $_SESSION['user_id'] = $user->id;
         $_SESSION['user_email'] = $user->email;
         $_SESSION['user_name'] = $user->name;
+        $_SESSION['role'] = $user->role;
         redirect('posts');
     }
 
-    public function logout(){
+    public function logout()
+    {
         unset($_SESSION['user_id']);
         unset($_SESSION['user_email']);
         unset($_SESSION['user_name']);
