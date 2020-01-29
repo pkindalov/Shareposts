@@ -161,7 +161,7 @@ class Posts extends Controller
             $post = $this->postModel->getPostById($postId);
 
             //Check for owner
-            if ($post->user_id != $_SESSION['user_id']) {
+            if ($post->user_id != $_SESSION['user_id'] && !isAdmin()) {
                 redirect('posts');
             }
 

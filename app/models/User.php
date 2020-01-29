@@ -111,4 +111,14 @@ class User
         $result = $this->db->resultSet();
         return $result;
     }
+
+    public function getLastPosts($userId, $count){
+        $this->db->query("SELECT * FROM posts WHERE posts.user_id = :userId  ORDER BY posts.created_at DESC LIMIT :count");
+        $this->db->bind(":userId", $userId, null);
+        $this->db->bind(":count", $count, null);
+        $result = $this->db->resultSet();
+        return $result;
+    }
+
+
 }

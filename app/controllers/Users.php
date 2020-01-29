@@ -194,9 +194,12 @@ class Users extends Controller
         $userId = (int)$userId;
         $user = $this->userModel->getUserById($userId);
         $userPostsCount = $this->userModel->getUserPostsCount($userId);
+        $lastUserPosts = $this->userModel->getLastPosts($userId, 2);
+
         $data = [
             'user' => $user,
-            'postsCount' => $userPostsCount
+            'postsCount' => $userPostsCount,
+            'posts' => $lastUserPosts
         ];
 
         $this->view('users/userProfile', $data);
