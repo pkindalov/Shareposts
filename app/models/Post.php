@@ -37,14 +37,22 @@ class Post
         $offset = ($page - 1) * $pageSize;
 
         // echo $offset;
-        $this->db->query("SELECT *, 
+        $this->db->query("SELECT DISTINCT 
                             posts.id AS postId, 
+                            posts.body AS body,
+                            posts.title AS title,
                             users.id AS userId,
+                            users.name AS name,
                             posts.created_at AS postCreated,
-                            users.created_at AS userRegistered 
+                            users.created_at AS userRegistered,
+                            likes.user_id AS voted,
+                            (SELECT COUNT(id) FROM likes WHERE likes.post_id = posts.id ) AS totalVotes
                             FROM posts 
+                            LEFT JOIN likes
+                            ON likes.post_id = posts.id
                             INNER JOIN users 
                             ON posts.user_id = users.id
+                            
                             ORDER BY posts.created_at DESC
                             LIMIT :limit
                             OFFSET :offset
@@ -52,6 +60,8 @@ class Post
 
         $this->db->bind(':limit', $pageSize, null);
         $this->db->bind(':offset', $offset, null);
+        // $this->db->bind(':userId', $_SESSION['user_id'], null);
+
         $results = $this->db->resultSet();
         // $total_pages = ceil(count($results) / $pageSize);
 

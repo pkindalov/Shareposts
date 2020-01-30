@@ -196,6 +196,7 @@ class Posts extends Controller
             'prevPage' => $page - 1
         ];
 
+
         $this->view('posts/index', $data);
     }
 }
