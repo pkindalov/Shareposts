@@ -34,43 +34,43 @@
             </p>
             <div>
                 <a href="<?php echo URLROOT; ?>/posts/show/<?php echo $post->postId; ?>" class="btn btn-dark pull-left mb-2"><i class="fa pr-2">&#xf05a;</i>More...</a>
-            
+
 
 
                 <?php if ($post->voted && $post->voted ===  $_SESSION['user_id'] && $post->userId != $_SESSION['user_id']) : ?>
 
                     <a href="<?php echo URLROOT; ?>/likes/dislikePost/<?php echo $post->postId; ?>" class="btn btn-primary pull-right"><i class="fas pr-2">&#xf165;</i>Dislike</a>
-                    </div>
-
-                <?php else : ?>
-
-                    <?php if ($post->userId != $_SESSION['user_id']) : ?>
-                        <a href="<?php echo URLROOT; ?>/likes/addLikeToPost/<?php echo $post->postId; ?>" class="btn btn-primary pull-right"><i class="fa fa-heart pr-2"></i>Like</a>
-                    <?php endif; ?>
             </div>
-           
+
+        <?php else : ?>
+
+            <?php if ($post->userId != $_SESSION['user_id']) : ?>
+                <a href="<?php echo URLROOT; ?>/likes/addLikeToPost/<?php echo $post->postId; ?>" class="btn btn-primary pull-right"><i class="fa fa-heart pr-2"></i>Like</a>
+            <?php endif; ?>
+            </div>
+
         <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-
-
-        <div class="row">
-            <div class="col-md-12">
-
-
-                <?php if ($data['hasPrevPage']) : ?>
-                    <a href="<?php echo URLROOT; ?>/posts/getPage/<?php echo $data['prevPage']; ?>" class="btn btn-primary pull-left">
-                        <i class="fa fa-backward"></i> Prev
-                    </a>
-                <?php endif; ?>
-
-                <?php if ($data['hasNextPage']) : ?>
-                    <a href="<?php echo URLROOT; ?>/posts/getPage/<?php echo $data['nextPage']; ?>" class="btn btn-primary pull-right">
-                        <i class="fa fa-forward"></i> Next
-                    </a>
-                <?php endif; ?>
-            </div>
         </div>
+    <?php endforeach; ?>
 
 
-        <?php require_once APPROOT . '/views/inc/footer.php' ?>
+    <div class="row">
+        <div class="col-md-12">
+
+
+            <?php if ($data['hasPrevPage']) : ?>
+                <a href="<?php echo URLROOT; ?>/posts/getPage/<?php echo $data['prevPage']; ?>" class="btn btn-primary pull-left">
+                    <i class="fa fa-backward"></i> Prev
+                </a>
+            <?php endif; ?>
+
+            <?php if ($data['hasNextPage']) : ?>
+                <a href="<?php echo URLROOT; ?>/posts/getPage/<?php echo $data['nextPage']; ?>" class="btn btn-primary pull-right">
+                    <i class="fa fa-forward"></i> Next
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+
+
+    <?php require_once APPROOT . '/views/inc/footer.php' ?>
