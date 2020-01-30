@@ -231,6 +231,10 @@ class Users extends Controller
         $this->view('users/posts', $data);
     }
 
+    public function showUser($userId){
+       $this->userProfile($userId);
+    }
+
 
     public function createUserSession($user)
     {
