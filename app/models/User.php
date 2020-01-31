@@ -90,20 +90,26 @@ class User
         return $users;
     }
 
-    public function getUserPostsCount($userId){
+    public function getUserPostsCount($userId)
+    {
         $this->db->query("SELECT * FROM posts WHERE posts.user_id = :userId");
         $this->db->bind(":userId", $userId, null);
         $posts = $this->db->resultSet();
-        $postsCount = $this->db->rowCount(); 
+        $postsCount = $this->db->rowCount();
         return $postsCount;
-
     }
 
-    public function getUsersPostWithPag($userId, $page, $pageSize){
+    public function getUsersPostWithPag($userId, $page, $pageSize)
+    {
         $page  = $page == 0 ? 1 : $page;
         $offset = ($page - 1) * $pageSize;
         $this->db->query("
-            SELECT posts.*, users.name FROM posts INNER JOIN users ON users.id = posts.user_id WHERE posts.user_id = :userId LIMIT :limit OFFSET :offset
+            SELECT posts.*, users.name 
+            FROM posts 
+            INNER JOIN users ON users.id = posts.user_id 
+            WHERE posts.user_id = :userId 
+            LIMIT :limit 
+            OFFSET :offset
         ");
         $this->db->bind(":userId", $userId, null);
         $this->db->bind(":limit", $pageSize, null);
@@ -112,13 +118,30 @@ class User
         return $result;
     }
 
-    public function getLastPosts($userId, $count){
+    public function getUserLikedPostWithPag($userId, $page, $pageSize)
+    {
+        $page  = $page == 0 ? 1 : $page;
+        $offset = ($page - 1) * $pageSize;
+        $this->db->query("
+        SELECT * FROM likes
+        INNER JOIN posts ON likes.post_id = posts.id
+        WHERE likes.user_id = :userId
+        LIMIT :limit 
+        OFFSET :offset
+        ");
+        $this->db->bind(":userId", $userId, null);
+        $this->db->bind(":limit", $pageSize, null);
+        $this->db->bind(":offset", $offset, null);
+        $result = $this->db->resultSet();
+        return $result;
+    }
+
+    public function getLastPosts($userId, $count)
+    {
         $this->db->query("SELECT * FROM posts WHERE posts.user_id = :userId  ORDER BY posts.created_at DESC LIMIT :count");
         $this->db->bind(":userId", $userId, null);
         $this->db->bind(":count", $count, null);
         $result = $this->db->resultSet();
         return $result;
     }
-
-
 }

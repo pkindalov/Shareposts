@@ -236,6 +236,32 @@ class Users extends Controller
         $this->view('users/posts', $data);
     }
 
+    public function getLikedUserPosts($url){
+        // print_r($url);
+        $userId = extractUserId($url);
+        $page = extractPageNum($url);
+        $pageSize = 10;
+        $likedUserPosts = $this->userModel->getUserLikedPostWithPag($userId, $page, $pageSize);
+        $userName =  $this->userModel->getUserById($userId);
+       
+        
+        $data = [
+            'posts' => $likedUserPosts,
+            'page' => $page,
+            'userId' => $userId,
+            'userName' => $userName,
+            'hasNextPage' => count($likedUserPosts) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1
+        ];
+        // print_r($data);
+
+        // echo $queryStr;
+        // var_dump(explode('&', $url));
+        $this->view('users/listLikedPosts', $data);
+    }
+
     public function showUser($userId){
        $this->userProfile($userId);
     }
