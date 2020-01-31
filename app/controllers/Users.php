@@ -4,6 +4,7 @@ class Users extends Controller
     public function __construct()
     {
         $this->userModel = $this->model('User');
+        $this->likeModel = $this->model('Like');
     }
 
     public function register()
@@ -195,11 +196,15 @@ class Users extends Controller
         $user = $this->userModel->getUserById($userId);
         $userPostsCount = $this->userModel->getUserPostsCount($userId);
         $lastUserPosts = $this->userModel->getLastPosts($userId, 2);
+        $likedPostsCount = $this->likeModel->getCountOfTheUserLikedPosts($userId);
+
+        
 
         $data = [
             'user' => $user,
             'postsCount' => $userPostsCount,
-            'posts' => $lastUserPosts
+            'posts' => $lastUserPosts,
+            'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount
         ];
 
         $this->view('users/userProfile', $data);

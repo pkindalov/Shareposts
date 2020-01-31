@@ -6,6 +6,8 @@
         <h5>Here from: <?php echo $data['user']->created_at; ?></h5>
         <h5>Email: <?php echo $data['user']->email; ?></h5>
         <h5>Total count of posts: <a href="<?php echo URLROOT; ?>/users/getUserPosts?id=<?php echo $data['user']->id; ?>?page=1"><?php echo $data['postsCount'];?></a></h5>
+        
+        <h5>Liked posts: <a href="<?php echo URLROOT; ?>/users/getLikedUserPosts?id=<?php echo $data['user']->id; ?>?page=1"><?php echo $data['userLikedPostsCount'];?></a></h5>
         <!-- <p>All registered users <strong>but not Admins</strong></p> -->
         <!-- <p><?php echo URLROOT; ?>/users/getUserPosts?id=<?php echo $data['user']->id; ?>&&page=1</p> -->
     </div>
@@ -27,10 +29,12 @@
         <p><?php echo $post->created_at; ?></p>
         <?php if(isAdmin()) {
          /*   echo "<a href="<?php echo URLROOT; ?>/posts/edit/<?php echo $data['post']->id; ?>" class="btn btn-dark">Edit</a>"; */
+            echo "<div>";
             echo "<a href=" .URLROOT. "/posts/edit/" .$post->id . " class='btn btn-dark pull-left'>Edit</a>";
 
             echo "<form class=" . "pull-right action=" .URLROOT. "/posts/delete/" .$post->id ." method=" . "post" . ">" . "<input type=" . "submit " .  "value=" . "Delete " . "class='" . "btn btn-danger'" . "/>" .
         "</form>";
+            echo "</div>"; 
            
         //     echo "<form class=\"pull-right\" action=" .URLROOT. "/posts/delete/" .$post->id. "method=" . "post" . ">" . "<input type=" . "submit" .  "value=" . "Delete" .  "class=\"btn btn-danger\" />
         // </form>";
