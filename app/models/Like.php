@@ -36,4 +36,11 @@
             $this->db->bind(":userId", $_SESSION['user_id'], null);
             $this->db->execute();
         }
+
+        public function getCountOfTheUserLikedPosts($userId){
+            $this->db->query("SELECT COUNT(*) AS userLikedPostsCount FROM likes WHERE likes.user_id = :userId");
+            $this->db->bind(":userId", $userId, null);
+            $row = $this->db->single();
+            return $row;
+        }
     }

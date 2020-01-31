@@ -37,10 +37,12 @@ if (count($data['posts']) == 0) {
         <p><?php echo $post->created_at; ?></p>
         <?php if(isAdmin()) {
          /*   echo "<a href="<?php echo URLROOT; ?>/posts/edit/<?php echo $data['post']->id; ?>" class="btn btn-dark">Edit</a>"; */
+            echo "<div>";
             echo "<a href=" .URLROOT. "/posts/edit/" .$post->id . " class='btn btn-dark pull-left'>Edit</a>";
 
             echo "<form class=" . "pull-right action=" .URLROOT. "/posts/delete/" .$post->id ." method=" . "post" . ">" . "<input type=" . "submit " .  "value=" . "Delete " . "class='" . "btn btn-danger'" . "/>" .
         "</form>";
+            echo "</div>";
            
         //     echo "<form class=\"pull-right\" action=" .URLROOT. "/posts/delete/" .$post->id. "method=" . "post" . ">" . "<input type=" . "submit" .  "value=" . "Delete" .  "class=\"btn btn-danger\" />
         // </form>";
