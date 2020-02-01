@@ -13,4 +13,12 @@
         <input type="submit" value="Delete" class="btn btn-danger" />
     </form>
 <?php endif; ?>
+
+<div>
+    <h5>People liked this post</h5>
+    <?php foreach($data['likers'] as $liker) : ?>
+        <a class="btn btn-success mt-2" href="<?php echo URLROOT; ?>/users/showUser/<?php echo $liker->user_id; ?>"><?php echo $liker->name; ?></a>
+        <?php endforeach; ?>    
+</div>
+
 <?php require APPROOT . '/views/inc/footer.php'; ?>

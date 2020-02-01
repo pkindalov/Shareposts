@@ -50,7 +50,7 @@ if (count($data['posts']) == 0) {
 
         } ?>
         <div>
-            <a href="<?php echo URLROOT; ?>/likes/dislikePost/<?php echo $post->id; ?>" class="btn btn-danger pull-left"><i class="fas pr-2">&#xf165;</i>Dislike</a>
+            <a href="<?php echo URLROOT; ?>/likes/dislikePost/<?php echo $post->id; ?>" class="btn btn-danger pull-left mt-2"><i class="fas pr-2">&#xf165;</i>Dislike</a>
         </div>
     </div>
 

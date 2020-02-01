@@ -37,7 +37,11 @@
 
 
 
-                <?php if ($post->voted && $post->voted ===  $_SESSION['user_id'] && $post->userId != $_SESSION['user_id']) : ?>
+                
+
+
+                    <?php if ($post->voted && $post->voted > 0 && $post->userId != $_SESSION['user_id']) : ?>    
+                
 
                     <a href="<?php echo URLROOT; ?>/likes/dislikePost/<?php echo $post->postId; ?>" class="btn btn-primary pull-right"><i class="fas pr-2">&#xf165;</i>Dislike</a>
             </div>
