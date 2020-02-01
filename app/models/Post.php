@@ -45,14 +45,15 @@ class Post
                             users.name AS name,
                             posts.created_at AS postCreated,
                             users.created_at AS userRegistered,
-                            likes.user_id AS voted,
+                            :currentlyLoggedUser IN (SELECT likes.user_id FROM likes WHERE posts.id = likes.post_id) AS voted,
+                            -- posts.user_id IN (SELECT likes.user_id FROM likes WHERE likes.user_id = posts.user_id ) AS voted,
                             (SELECT COUNT(id) FROM likes WHERE likes.post_id = posts.id ) AS totalVotes
                             FROM posts 
                             LEFT JOIN likes
                             ON likes.post_id = posts.id
                             INNER JOIN users 
                             ON posts.user_id = users.id
-                            
+                            GROUP BY likes.post_id
                             ORDER BY posts.created_at DESC
                             LIMIT :limit
                             OFFSET :offset
@@ -60,6 +61,7 @@ class Post
 
         $this->db->bind(':limit', $pageSize, null);
         $this->db->bind(':offset', $offset, null);
+        $this->db->bind(':currentlyLoggedUser', $_SESSION['user_id'], null);
         // $this->db->bind(':userId', $_SESSION['user_id'], null);
 
         $results = $this->db->resultSet();
@@ -125,7 +127,22 @@ class Post
         return $row;
     }
 
-    public function getAuthorOfPostByPostId($postId){
+
+    public function getPeopleLikesPost($id)
+    {
+        $this->db->query("
+        SELECT likes.*, users.name FROM likes
+        INNER JOIN users ON likes.user_id = users.id
+        WHERE likes.post_id = :postId;
+        ");
+
+        $this->db->bind(":postId", $id, null);
+        $result = $this->db->resultSet();
+        return $result;
+    }
+
+    public function getAuthorOfPostByPostId($postId)
+    {
         $this->db->query("SELECT user_id FROM posts WHERE posts.id = :postId");
         $this->db->bind(":postId", $postId, null);
         $row = $this->db->single();

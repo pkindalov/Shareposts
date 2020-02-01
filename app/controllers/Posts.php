@@ -144,10 +144,13 @@ class Posts extends Controller
     public function show($id)
     {
         $post = $this->postModel->getPostById($id);
+        $usersLikesPost = $this->postModel->getPeopleLikesPost($id);
+        
         $user = $this->userModel->getUserById($post->user_id);
         $data = [
             'post' => $post,
-            'user' => $user
+            'user' => $user,
+            'likers' => $usersLikesPost
         ];
 
         $this->view('posts/show', $data);
@@ -186,7 +189,8 @@ class Posts extends Controller
 
         $page = (int) $page;
         $pageSize = 5;
-        $posts = $this->postModel->getPostsPaginated((int) $page, $pageSize);
+        $posts = $this->postModel->getPostsPaginated($page, $pageSize);
+
         $data = [
             'posts' => $posts,
             'page' => (int) $page,
