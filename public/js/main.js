@@ -6,8 +6,10 @@ function showHideCommentsOnPost(postId) {
 	let contEl = document.getElementById(commentBoxId);
 
 	if (clickedOnPost) {
-		contEl.classList.remove('d-none');
+        contEl.classList.remove('d-none');
+        document.getElementById('showHideCommentsBtn').textContent = 'Hide Comments';
 	} else {
-		contEl.classList.add('d-none');
+        contEl.classList.add('d-none');
+        document.getElementById('showHideCommentsBtn').textContent = 'Show Comments';
 	}
 }

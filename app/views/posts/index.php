@@ -45,7 +45,7 @@
                 <a href="<?php echo URLROOT; ?>/comments/addCommentToPost/<?php echo $post->postId; ?>" class="btn btn-info pull-left mb-2 ml-2"><i class="fa pr-2">&#xf05a;</i>Add Comment...</a>
 
                 <?php if(isset($post->comment)) : ?>
-                    <a class="btn btn-warning ml-2" href="#" onclick="showHideCommentsOnPost(<?php echo $post->postId; ?>);">Show Comments</a>
+                    <a id="showHideCommentsBtn" class="btn btn-warning ml-2" href="#" onclick="showHideCommentsOnPost(<?php echo $post->postId; ?>);">Show Comments</a>
                 <? endif; ?>    
 
 
