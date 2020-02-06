@@ -31,6 +31,7 @@ class Comment
         $this->db->query("SELECT comments.*, users.name, users.email, users.role FROM comments 
                           INNER JOIN users ON users.id = comments.user_id
                           WHERE comments.post_id IN ($numberList)
+                          LIMIT 5
         
         ");
         $comments = $this->db->resultSet();

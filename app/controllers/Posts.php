@@ -195,7 +195,7 @@ class Posts extends Controller
         $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
         $numOfComments = count((array)$comments);
 
-        if($numOfComments != 0){
+        if($numOfComments > 0){
             for($c = 0; $c < count($comments); $c++){
                 for($p = 0; $p < count($posts); $p++){
                     if($comments[$c]->post_id == $posts[$p]->postId){
@@ -205,7 +205,7 @@ class Posts extends Controller
             }
         }
        
-        print_r($comments);
+        // print_r($comments);
 
         $data = [
             'posts' => $posts,
