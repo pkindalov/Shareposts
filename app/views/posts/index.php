@@ -28,6 +28,9 @@
             </h4>
             <div class="bg-light p-2 mb-3">
                 <p>This post has <strong><?php echo $post->totalVotes; ?></strong> likes </p>
+                <!-- <?php if(isset($post->comment)) : ?>
+                    <p class="text-success">There are <a href="<?php echo URLROOT;?>/posts/showCommentOnPost/<?php echo $post->postId; ?>">comments</a> on post</p>
+                <?php endif; ?> -->
                 Written By <?php echo $post->name ?> on <?php echo $post->postCreated; ?>
             </div>
             <p class="card-text">
@@ -41,6 +44,9 @@
 
                 <a href="<?php echo URLROOT; ?>/comments/addCommentToPost/<?php echo $post->postId; ?>" class="btn btn-info pull-left mb-2 ml-2"><i class="fa pr-2">&#xf05a;</i>Add Comment...</a>
 
+                <?php if(isset($post->comment)) : ?>
+                    <a class="btn btn-warning ml-2" href="#" onclick="showHideCommentsOnPost(<?php echo $post->postId; ?>);">Show Comments</a>
+                <? endif; ?>    
 
 
 
@@ -62,21 +68,25 @@
 
         <?php if (isset($post->comment) && count($post->comment) > 0) : ?>
 
+           
 
+            <div class="d-none" id="commentBoxPost<?php echo $post->postId; ?>">
             <?php foreach ($post->comment as $comment) : ?>
 
-                <div class="card card-body mb-3 ml-5">
-                    <div class="bg-light p-2 mb-3">
-                        <?php echo $comment->text ?>
+                    <div class="card card-body mb-3 ml-5">
+                        <div class="bg-light p-2 mb-3">
+                            <?php echo $comment->text ?>
+                        </div>
+                        <p class="card-text">
+                            Written By <?php echo $comment->name ?> on <?php echo $comment->created_at; ?>
+                        </p>
+    
+                        
                     </div>
-                    <p class="card-text">
-                        Written By <?php echo $comment->name ?> on <?php echo $comment->created_at; ?>
-                    </p>
-
+                    
+                    
+                    <?php endforeach; ?>
                 </div>
-
-
-            <?php endforeach; ?>
 
         <?php endif; ?>
 
