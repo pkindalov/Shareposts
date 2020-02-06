@@ -2,6 +2,7 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <h1>Name: <?php echo $data['user']->name; ?></h1>
+        <hr />
         <h5>Role: <?php echo $data['user']->role; ?></h5>
         <h5>Here from: <?php echo $data['user']->created_at; ?></h5>
         <h5>Email: <?php echo $data['user']->email; ?></h5>

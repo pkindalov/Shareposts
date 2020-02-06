@@ -1,5 +1,6 @@
 <?php require_once APPROOT . '/views/inc/header.php' ?>
 <?php flash('post_message'); ?>
+<?php flash('comment_message'); ?>
 <div class="row mb-3">
     <div class="col-md-6">
         <h1>Posts</h1>
@@ -32,16 +33,19 @@
             <p class="card-text">
                 <?php echo $post->body ?>
             </p>
+
+
+
             <div>
                 <a href="<?php echo URLROOT; ?>/posts/show/<?php echo $post->postId; ?>" class="btn btn-dark pull-left mb-2"><i class="fa pr-2">&#xf05a;</i>More...</a>
 
+                <a href="<?php echo URLROOT; ?>/comments/addCommentToPost/<?php echo $post->postId; ?>" class="btn btn-info pull-left mb-2 ml-2"><i class="fa pr-2">&#xf05a;</i>Add Comment...</a>
 
 
-                
 
 
-                    <?php if ($post->voted && $post->voted > 0 && $post->userId != $_SESSION['user_id']) : ?>    
-                
+                <?php if ($post->voted && $post->voted > 0 && $post->userId != $_SESSION['user_id']) : ?>
+
 
                     <a href="<?php echo URLROOT; ?>/likes/dislikePost/<?php echo $post->postId; ?>" class="btn btn-primary pull-right"><i class="fas pr-2">&#xf165;</i>Dislike</a>
             </div>
@@ -55,6 +59,27 @@
 
         <?php endif; ?>
         </div>
+
+        <?php if (isset($post->comment) && count($post->comment) > 0) : ?>
+
+
+            <?php foreach ($post->comment as $comment) : ?>
+
+                <div class="card card-body mb-3 ml-5">
+                    <div class="bg-light p-2 mb-3">
+                        <?php echo $comment->text ?>
+                    </div>
+                    <p class="card-text">
+                        Written By <?php echo $comment->name ?> on <?php echo $comment->created_at; ?>
+                    </p>
+
+                </div>
+
+
+            <?php endforeach; ?>
+
+        <?php endif; ?>
+
     <?php endforeach; ?>
 
 

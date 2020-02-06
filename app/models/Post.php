@@ -37,24 +37,30 @@ class Post
         $offset = ($page - 1) * $pageSize;
 
         // echo $offset;
-        $this->db->query("SELECT DISTINCT 
-                            posts.id AS postId, 
-                            posts.body AS body,
-                            posts.title AS title,
-                            users.id AS userId,
-                            users.name AS name,
-                            posts.created_at AS postCreated,
-                            users.created_at AS userRegistered,
-                            :currentlyLoggedUser IN (SELECT likes.user_id FROM likes WHERE posts.id = likes.post_id) AS voted,
-                            -- posts.user_id IN (SELECT likes.user_id FROM likes WHERE likes.user_id = posts.user_id ) AS voted,
-                            (SELECT COUNT(id) FROM likes WHERE likes.post_id = posts.id ) AS totalVotes
-                            FROM posts 
-                            LEFT JOIN likes
-                            ON likes.post_id = posts.id
-                            INNER JOIN users 
-                            ON posts.user_id = users.id
-                            GROUP BY likes.post_id
-                            ORDER BY posts.created_at DESC
+        $this->db->query("SELECT 
+        posts.id AS postId, 
+        posts.body AS body,
+        posts.title AS title,
+        users.id AS userId,
+        users.name AS name,
+        posts.created_at AS postCreated,
+        users.created_at AS userRegistered,
+        :currentlyLoggedUser IN (SELECT likes.user_id FROM likes WHERE posts.id = likes.post_id) AS voted,
+        -- posts.user_id IN (SELECT likes.user_id FROM likes WHERE likes.user_id = posts.user_id ) AS voted,
+        (SELECT COUNT(id) FROM likes WHERE likes.post_id = posts.id ) AS totalVotes
+        -- comments.text AS commentText,
+        -- comments.created_at AS commentCreatedDate,
+        -- comments.user_id AS commentAuthorId,
+        -- u2.name AS commentAuthorName
+        FROM posts 
+        LEFT JOIN likes ON likes.post_id = posts.id
+        INNER JOIN users ON posts.user_id = users.id
+        
+        -- LEFT JOIN users u2 ON u2.id = comments.user_id 
+-- 									 LEFT JOIN comments c ON c.user_id = users.id           
+        -- GROUP BY likes.post_id, comments.id
+        GROUP BY likes.post_id, posts.id
+        ORDER BY posts.created_at DESC
                             LIMIT :limit
                             OFFSET :offset
       ");

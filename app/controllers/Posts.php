@@ -17,6 +17,7 @@ class Posts extends Controller
 
         $this->postModel = $this->model('Post');
         $this->userModel = $this->model('User');
+        $this->commentModel = $this->model('Comment');
     }
 
     public function index()
@@ -190,6 +191,21 @@ class Posts extends Controller
         $page = (int) $page;
         $pageSize = 5;
         $posts = $this->postModel->getPostsPaginated($page, $pageSize);
+        $postsIds = $this->getPostsIds($posts);
+        $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
+        $numOfComments = count((array)$comments);
+
+        if($numOfComments != 0){
+            for($c = 0; $c < count($comments); $c++){
+                for($p = 0; $p < count($posts); $p++){
+                    if($comments[$c]->post_id == $posts[$p]->postId){
+                       $posts[$p]->comment[] = $comments[$c];
+                    }
+                }
+            }
+        }
+       
+        print_r($comments);
 
         $data = [
             'posts' => $posts,
@@ -203,4 +219,14 @@ class Posts extends Controller
 
         $this->view('posts/index', $data);
     }
+
+    private function getPostsIds($posts){
+        $ids = [];
+        foreach($posts as $post){
+            $ids[] = $post->postId;
+        }
+
+        return $ids;
+    }
+
 }
