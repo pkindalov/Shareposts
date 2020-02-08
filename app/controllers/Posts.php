@@ -191,6 +191,21 @@ class Posts extends Controller
         $page = (int) $page;
         $pageSize = 5;
         $posts = $this->postModel->getPostsPaginated($page, $pageSize);
+
+        if(gettype($posts) == 'array' && count($posts) == 0){
+            $data = [
+                'posts' => '',
+                'page' => (int) $page,
+                'hasNextPage' => count($posts) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1
+            ];
+
+            $this->view('posts/index', $data);
+            return;
+        }
+
         $postsIds = $this->getPostsIds($posts);
         $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
         $numOfComments = count((array)$comments);

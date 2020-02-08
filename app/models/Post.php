@@ -41,8 +41,9 @@ class Post
         posts.id AS postId, 
         posts.body AS body,
         posts.title AS title,
+        posts.approved,
         users.id AS userId,
-        users.name AS name,
+        users.name AS 'name',
         posts.created_at AS postCreated,
         users.created_at AS userRegistered,
         :currentlyLoggedUser IN (SELECT likes.user_id FROM likes WHERE posts.id = likes.post_id) AS voted,
@@ -52,28 +53,72 @@ class Post
         -- comments.created_at AS commentCreatedDate,
         -- comments.user_id AS commentAuthorId,
         -- u2.name AS commentAuthorName
-        FROM posts 
+        FROM posts
         LEFT JOIN likes ON likes.post_id = posts.id
-        INNER JOIN users ON posts.user_id = users.id
+        INNER JOIN users ON posts.user_id = users.id 
         
         -- LEFT JOIN users u2 ON u2.id = comments.user_id 
 -- 									 LEFT JOIN comments c ON c.user_id = users.id           
         -- GROUP BY likes.post_id, comments.id
         GROUP BY likes.post_id, posts.id
+        HAVING posts.approved = 1
         ORDER BY posts.created_at DESC
-                            LIMIT :limit
-                            OFFSET :offset
+        LIMIT :limit
+        OFFSET :offset
       ");
 
+
+//         $this->db->query("SELECT 
+//         posts.id AS postId, 
+//         posts.body AS body,
+//         posts.title AS title,
+//         posts.approved,
+//         users.id AS userId,
+//         users.name AS `name`,
+//         posts.created_at AS postCreated,
+//         users.created_at AS userRegistered,
+//         9 IN (SELECT likes.user_id FROM likes WHERE posts.id = likes.post_id) AS voted,
+//         -- posts.user_id IN (SELECT likes.user_id FROM likes WHERE likes.user_id = posts.user_id ) AS voted,
+//         (SELECT COUNT(id) FROM likes WHERE likes.post_id = posts.id ) AS totalVotes
+//         -- comments.text AS commentText,
+//         -- comments.created_at AS commentCreatedDate,
+//         -- comments.user_id AS commentAuthorId,
+//         -- u2.name AS commentAuthorName
+//         FROM posts
+//         LEFT JOIN likes ON likes.post_id = posts.id
+//         INNER JOIN users ON posts.user_id = users.id 
+        
+//         -- LEFT JOIN users u2 ON u2.id = comments.user_id 
+// -- 									 LEFT JOIN comments c ON c.user_id = users.id           
+//         -- GROUP BY likes.post_id, comments.id
+//         GROUP BY likes.post_id, posts.id
+//         HAVING posts.approved = 1
+//         ORDER BY posts.created_at DESC
+//         LIMIT 5
+//         OFFSET 0
+//         ");
+
+       
         $this->db->bind(':limit', $pageSize, null);
         $this->db->bind(':offset', $offset, null);
         $this->db->bind(':currentlyLoggedUser', $_SESSION['user_id'], null);
         // $this->db->bind(':userId', $_SESSION['user_id'], null);
 
-        $results = $this->db->resultSet();
+        $results = $this->db->execute();
+        if($this->db->rowCount($results) == 0){
+            return [];
+        } else {
+            $results = $this->db->resultSet();
+            return $results;
+
+        }
+        
+
+         
+        // $results = $this->db->resultSet();
+        // print_r($results);
         // $total_pages = ceil(count($results) / $pageSize);
 
-        return $results;
     }
 
     public function addPost($post)

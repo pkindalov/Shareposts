@@ -14,6 +14,13 @@
         </a>
     </div>
 </div>
+
+<?php if(!$data['posts']) : ?>
+
+    <h3>Sorry, no posts found</h3>
+
+<?php else : ?>    
+
 <?php foreach ($data['posts'] as $post) : ?>
     <?php if ($post->userId == $_SESSION['user_id']) : ?>
         <div class="card card-body mb-3 bg-info">
@@ -114,5 +121,6 @@
         </div>
     </div>
 
+    <?php endif; ?>
 
     <?php require_once APPROOT . '/views/inc/footer.php' ?>
