@@ -86,6 +86,9 @@
                     
                     
                     <?php endforeach; ?>
+                     <?php if(isset($post->comment)) : ?>
+                    <p class="text-success">See comments <a href="<?php echo URLROOT;?>/comments/showCommentOnPost?post=<?php echo $post->postId; ?>&page=1">here</a> on post</p>
+                <?php endif; ?>
                 </div>
 
         <?php endif; ?>

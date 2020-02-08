@@ -52,4 +52,65 @@
 
             // $this->view('comments/add', $data);
         }
+
+        public function showCommentOnPost($url){
+            $url = filter_var($url, FILTER_SANITIZE_URL);
+            $queryStr = explode('&', $url);
+            $postId = explode('=', $queryStr[1])[1];
+            $page = explode('=', $queryStr[2])[1];
+            $pageSize = 10;
+            
+            if(!isset($page)){
+                $page = 1;
+            }
+
+
+
+            $content = $this->commentModel->getCommentsToPostPage($postId, (int)$page, $pageSize);
+            $postAndComments = [];
+
+            // print_r($content);
+
+            if(count($content) > 0){
+
+                $postAndComments['postTitle'] = $content[0]->postTitle;
+                $postAndComments['postContent'] = $content[0]->postContent;
+                $postAndComments['postCreatedOn'] = $content[0]->postCreatedOn;
+                $postAndComments['postUserName'] = $content[0]->postUserName;
+                $postAndComments['postUserEmail'] = $content[0]->postUserEmail;
+                $postAndComments['voted'] = $content[0]->voted;
+                $postAndComments['userId'] = $content[0]->userId;
+                $postAndComments['postId'] = $content[0]->postId;
+                $postAndComments['totalLikes'] = $content[0]->totalLikes;
+    
+                
+                foreach($content as $cont){
+                    $postAndComments['commentInfo']['commentText'][] = $cont->commentText;
+                    $postAndComments['commentInfo']['commentCreated'][] = $cont->commentCreated;
+                    $postAndComments['commentInfo']['commentAuthorName'][] = $cont->commentAuthorName;
+                    $postAndComments['commentInfo']['commentAuthorEmail'][] = $cont->commentAuthorEmail;
+                    $postAndComments['commentInfo']['commentAuthor'][] = $cont->commentAuthor;
+                }
+            }
+            
+
+
+
+
+            // print_r($postAndComments);
+
+            $data = [
+                'content' => $postAndComments,
+                'page' => $page,
+                'hasNextPage' => count($content) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'postId' => $postId
+            ];
+
+           
+            $this->view('comments/showCommentsOnPostById', $data);
+
+        }
     }
