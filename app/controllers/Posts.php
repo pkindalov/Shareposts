@@ -90,7 +90,7 @@ class Posts extends Controller
             $originalPostAuthor = $this->postModel->getAuthorOfPostByPostId($postId);
             $userId = $originalPostAuthor->user_id;
             $postContent = isAdmin() ? trim($_POST['body'] . " <p>Edited By Admin</p>") : trim($_POST['body']);
-           
+
 
             $data = [
                 'id' => $postId,
@@ -133,6 +133,21 @@ class Posts extends Controller
                 redirect('posts');
             }
 
+            if ($_SESSION['role'] == 'admin') {
+                $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+                $data = [
+                    'id' => $postId,
+                    'title' => $post->title,
+                    'body' => $post->body,
+                    'notApprovedPostsCount' => $notApprovedPostsCount->count
+                ];
+
+
+                $this->view('posts/edit', $data);
+                return;
+            }
+
             $data = [
                 'id' => $postId,
                 'title' => $post->title,
@@ -146,8 +161,23 @@ class Posts extends Controller
     {
         $post = $this->postModel->getPostById($id);
         $usersLikesPost = $this->postModel->getPeopleLikesPost($id);
-        
         $user = $this->userModel->getUserById($post->user_id);
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'post' => $post,
+                'user' => $user,
+                'likers' => $usersLikesPost,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('posts/show', $data);
+            return;
+        }
+
         $data = [
             'post' => $post,
             'user' => $user,
@@ -192,7 +222,26 @@ class Posts extends Controller
         $pageSize = 5;
         $posts = $this->postModel->getPostsPaginated($page, $pageSize);
 
-        if(gettype($posts) == 'array' && count($posts) == 0){
+        //to make query about not approved posts only if admin is logged
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'posts' => $posts,
+                'page' => (int) $page,
+                'hasNextPage' => count($posts) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('posts/index', $data);
+            return;
+        }
+
+        if (gettype($posts) == 'array' && count($posts) == 0) {
             $data = [
                 'posts' => '',
                 'page' => (int) $page,
@@ -208,19 +257,77 @@ class Posts extends Controller
 
         $postsIds = $this->getPostsIds($posts);
         $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
-        $numOfComments = count((array)$comments);
+        $numOfComments = count((array) $comments);
 
-        if($numOfComments > 0){
-            for($c = 0; $c < count($comments); $c++){
-                for($p = 0; $p < count($posts); $p++){
-                    if($comments[$c]->post_id == $posts[$p]->postId){
-                       $posts[$p]->comment[] = $comments[$c];
+        if ($numOfComments > 0) {
+            for ($c = 0; $c < count($comments); $c++) {
+                for ($p = 0; $p < count($posts); $p++) {
+                    if ($comments[$c]->post_id == $posts[$p]->postId) {
+                        $posts[$p]->comment[] = $comments[$c];
                     }
                 }
             }
         }
-       
+
         // print_r($comments);
+
+        $data = [
+            'posts' => $posts,
+            'page' => (int) $page,
+            'hasNextPage' => count($posts) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1,
+            // 'notApprovedPostsCount' => $notApprovedPostsCount || 0
+        ];
+
+
+        $this->view('posts/index', $data);
+    }
+
+    public function postsForApproving($page)
+    {
+        if (!isset($page) || !$page) {
+            $page = 1;
+        }
+
+        $page = (int) $page;
+        $pageSize = 15;
+
+        $posts = $this->postModel->getPostsForApproving($page, $pageSize);
+
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'posts' => $posts,
+                'page' => (int) $page,
+                'hasNextPage' => count($posts) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('posts/listPostsForApproving', $data);
+            return;
+        }
+
+        if (gettype($posts) == 'array' && count($posts) == 0) {
+            $data = [
+                'posts' => '',
+                'page' => (int) $page,
+                'hasNextPage' => count($posts) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1
+            ];
+
+            $this->view('posts/listPostsForApproving', $data);
+            return;
+        }
 
         $data = [
             'posts' => $posts,
@@ -232,16 +339,23 @@ class Posts extends Controller
         ];
 
 
-        $this->view('posts/index', $data);
+        $this->view('posts/listPostsForApproving', $data);
     }
 
-    private function getPostsIds($posts){
+    public function approvePost($postId)
+    {
+        $postId = htmlspecialchars($postId);
+        $this->postModel->approvePostById($postId);
+        redirect('/posts/postsForApproving/1');
+    }
+
+    private function getPostsIds($posts)
+    {
         $ids = [];
-        foreach($posts as $post){
+        foreach ($posts as $post) {
             $ids[] = $post->postId;
         }
 
         return $ids;
     }
-
 }
