@@ -226,6 +226,20 @@ class Posts extends Controller
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
 
+            $postsIds = $this->getPostsIds($posts);
+            $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
+            $numOfComments = count((array) $comments);
+    
+            if ($numOfComments > 0) {
+                for ($c = 0; $c < count($comments); $c++) {
+                    for ($p = 0; $p < count($posts); $p++) {
+                        if ($comments[$c]->post_id == $posts[$p]->postId) {
+                            $posts[$p]->comment[] = $comments[$c];
+                        }
+                    }
+                }
+            }
+
             $data = [
                 'posts' => $posts,
                 'page' => (int) $page,
