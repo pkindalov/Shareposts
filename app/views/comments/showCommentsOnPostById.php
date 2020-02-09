@@ -24,7 +24,6 @@
                 <?php echo $data['content']['postTitle']; ?>
             </h4>
             <div class="bg-light p-2 mb-3">
-                Likes <?php echo $data['content']['totalLikes']; ?>
                 Written By <?php echo $data['content']['postUserName']; ?> on <?php echo $data['content']['postCreatedOn']; ?>
             </div>
             <p class="card-text">

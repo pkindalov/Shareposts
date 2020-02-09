@@ -11,11 +11,34 @@
           <a class="nav-link" href="<?php echo URLROOT; ?>">Home</a>
         </li>
 
-        <?php if(isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] == ADMIN) : ?>
+        <?php if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] == ADMIN) : ?>
           <li class="nav-item">
             <a class="nav-link" href="<?php echo URLROOT; ?>/users/listUsers">Users</a>
           </li>
-        <?php endif; ?>  
+
+          <?php if (isset($data['notApprovedPostsCount']) && $data['notApprovedPostsCount'] > 0) : ?>
+
+            
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo URLROOT; ?>/posts/postsForApproving/1">
+              Posts
+              <span class="badge badge-light">
+              (<?php echo $data['notApprovedPostsCount'] ?>)
+              </span>
+              <span class="sr-only">unread messages</span>
+             </a>
+            </li>
+
+      
+
+          <?php else : ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php echo URLROOT; ?>/posts/postsForApproving/1">Posts</a>
+            </li>
+          <?php endif; ?>
+
+
+        <?php endif; ?>
 
         <li class="nav-item">
           <a class="nav-link" href="<?php echo URLROOT; ?>/pages/about">About</a>
@@ -25,7 +48,7 @@
       <ul class="navbar-nav ml-auto">
         <?php if (isset($_SESSION['user_id'])) : ?>
           <li class="nav-item">
-           <a class="nav-link" href="<?php echo URLROOT;?>/users/showUser/<?php echo $_SESSION['user_id']; ?>">Wellcome,<?php echo $_SESSION['user_name']; ?></a>
+            <a class="nav-link" href="<?php echo URLROOT; ?>/users/showUser/<?php echo $_SESSION['user_id']; ?>">Wellcome,<?php echo $_SESSION['user_name']; ?></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<?php echo URLROOT; ?>/users/logout">Logout</a>
