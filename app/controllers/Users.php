@@ -5,6 +5,7 @@ class Users extends Controller
     {
         $this->userModel = $this->model('User');
         $this->likeModel = $this->model('Like');
+        $this->postModel = $this->model('Post');
     }
 
     public function register()
@@ -173,10 +174,28 @@ class Users extends Controller
             $page = 1;
         }
 
-        $page = (int)$page;
+        $page = (int) $page;
         $pageSize = 10;
         $users = $this->userModel->getUsersPaginated($page, $pageSize);
-       
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'users' => $users,
+                'page' => (int) $page,
+                'hasNextPage' => count($users) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('users/listUsers', $data);
+            return;
+        }
+
         $data = [
             'users' => $users,
             'page' => $page,
@@ -190,15 +209,32 @@ class Users extends Controller
     }
 
 
-    public function userProfile($userId){
+    public function userProfile($userId)
+    {
         $userId = htmlspecialchars($userId);
-        $userId = (int)$userId;
+        $userId = (int) $userId;
         $user = $this->userModel->getUserById($userId);
         $userPostsCount = $this->userModel->getUserPostsCount($userId);
         $lastUserPosts = $this->userModel->getLastPosts($userId, 2);
         $likedPostsCount = $this->likeModel->getCountOfTheUserLikedPosts($userId);
 
-        
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'user' => $user,
+                'postsCount' => $userPostsCount,
+                'posts' => $lastUserPosts,
+                'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('users/userProfile', $data);
+            return;
+        }
+
+
 
         $data = [
             'user' => $user,
@@ -210,15 +246,35 @@ class Users extends Controller
         $this->view('users/userProfile', $data);
     }
 
-    public function getUserPosts($url){
+    public function getUserPosts($url)
+    {
         // print_r($url);
         $userId = extractUserId($url);
         $page = extractPageNum($url);
         $pageSize = 10;
         $userPosts = $this->userModel->getUsersPostWithPag($userId, $page, $pageSize);
         $userName =  $this->userModel->getUserById($userId);
-       
-        
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'posts' => $userPosts,
+                'page' => $page,
+                'userId' => $userId,
+                'userName' => $userName,
+                'hasNextPage' => count($userPosts) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('users/posts', $data);
+            return;
+        }
+
         $data = [
             'posts' => $userPosts,
             'page' => $page,
@@ -236,15 +292,35 @@ class Users extends Controller
         $this->view('users/posts', $data);
     }
 
-    public function getLikedUserPosts($url){
+    public function getLikedUserPosts($url)
+    {
         // print_r($url);
         $userId = extractUserId($url);
         $page = extractPageNum($url);
         $pageSize = 10;
         $likedUserPosts = $this->userModel->getUserLikedPostWithPag($userId, $page, $pageSize);
         $userName =  $this->userModel->getUserById($userId);
-       
-        
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+
+            $data = [
+                'posts' => $likedUserPosts,
+                'page' => $page,
+                'userId' => $userId,
+                'userName' => $userName,
+                'hasNextPage' => count($likedUserPosts) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count
+            ];
+
+
+            $this->view('users/listLikedPosts', $data);
+            return;
+        }
+
         $data = [
             'posts' => $likedUserPosts,
             'page' => $page,
@@ -262,8 +338,9 @@ class Users extends Controller
         $this->view('users/listLikedPosts', $data);
     }
 
-    public function showUser($userId){
-       $this->userProfile($userId);
+    public function showUser($userId)
+    {
+        $this->userProfile($userId);
     }
 
 
