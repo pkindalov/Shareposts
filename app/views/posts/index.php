@@ -105,8 +105,6 @@
 
     <div class="row">
         <div class="col-md-12">
-
-
             <?php if ($data['hasPrevPage']) : ?>
                 <a href="<?php echo URLROOT; ?>/posts/getPage/<?php echo $data['prevPage']; ?>" class="btn btn-primary pull-left">
                     <i class="fa fa-backward"></i> Prev

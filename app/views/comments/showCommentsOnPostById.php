@@ -42,6 +42,7 @@
 
                     <a href="<?php echo URLROOT; ?>/likes/dislikePost/<?php echo $data['content']['postId']; ?>" class="btn btn-primary pull-right"><i class="fas pr-2">&#xf165;</i>Dislike</a>
             </div>
+            
 
         <?php else : ?>
 
@@ -61,15 +62,15 @@
 
                 <!-- <?php echo $data['content']['commentInfo']['commentText'][$c]; ?> -->
 
-                <?php if ($data['content']['commentInfo']['commentAuthor'][$c]== $_SESSION['user_id']) : ?>
-                    <div class="card card-body mb-3 bg-info">
+                <?php if ($data['content']['commentInfo']['commentAuthor'][$c] == $_SESSION['user_id']) : ?>
+                    <div class="card card-body mb-3 bg-info ml-5">
 
                     <?php else : ?>
-                        <div class="card card-body mb-3">
+                        <div class="card card-body mb-3 ml-5">
 
                         <?php endif; ?>
 
-                        <div class="card card-body mb-3 ml-5">
+                        <!-- <div class="card card-body mb-3 ml-5"> -->
                             <div class="bg-light p-2 mb-3">
                                 <?php echo $data['content']['commentInfo']['commentText'][$c]; ?>
                             </div>
@@ -78,13 +79,13 @@
                             </p>
 
 
-                        </div>
+                        <!-- </div> -->
 
 
+                        <!-- </div> -->
 
-
+                    </div>
                     <?php endfor; ?>
-
 
 
                     <!-- <div class="card card-body mb-3 ml-5">
