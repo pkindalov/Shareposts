@@ -26,20 +26,29 @@ class Comment
         }
     }
 
-    public function getCommentsByPostsIds($postsIds){
+    public function getCommentsByPostsIds($postsIds)
+    {
         $numberList = join(',', $postsIds);
         $this->db->query("SELECT comments.*, users.name, users.email, users.role FROM comments 
                           INNER JOIN users ON users.id = comments.user_id
-                          WHERE comments.post_id IN ($numberList)
+                          WHERE comments.post_id IN (:numberList) AND comments.approved = 1
                           LIMIT 5
         
         ");
-        $comments = $this->db->resultSet();
+        $this->db->bind(":numberList", $numberList, null);
+        $result = $this->db->execute();
+       
+        if($this->db->rowCount($result) == 0){
+            return [];
+        } else {
+            $result = $this->db->resultSet();
+            return $result;
+        }
 
-        return $comments;
     }
 
-    public function getCommentsToPostPage($postId, $page, $pageSize){
+    public function getCommentsToPostPage($postId, $page, $pageSize)
+    {
         $page  = $page == 0 ? 1 : $page;
         $offset = ($page - 1) * $pageSize;
 
@@ -64,7 +73,7 @@ class Comment
                           INNER JOIN comments ON comments.post_id = posts.id
                           INNER JOIN users ON posts.user_id = users.id
                           INNER JOIN users commentUsers ON comments.user_id = commentUsers.id
-                          WHERE posts.id = :postId
+                          WHERE posts.id = :postId AND comments.approved = 1
                           LIMIT :limit
                           OFFSET :offset  
         ");
@@ -77,5 +86,60 @@ class Comment
         $result = $this->db->resultSet();
 
         return $result;
+    }
+
+    public function getCommentsForApprove($page, $pageSize)
+    {
+        $page  = $page == 0 ? 1 : $page;
+        $offset = ($page - 1) * $pageSize;
+
+        $this->db->query("SELECT comments.id AS commentId,
+          comments.text AS commentText, 
+          comments.post_id AS commentPostId, 
+          comments.user_id AS commentAuthorId,
+          users.name AS commentAuthor,
+          users.email AS commentAuthorEmail,
+          comments.created_at AS commentCreated,
+          posts.title AS postTitle,
+          posts.body AS postText
+          FROM	comments
+          INNER JOIN posts ON posts.id = comments.post_id
+          INNER JOIN users ON users.id = comments.user_id
+          WHERE comments.approved = 0
+          LIMIT :limit
+          OFFSET :offset
+        ");
+
+        $this->db->bind(":limit", $pageSize, null); 
+        $this->db->bind(":offset", $offset, null); 
+
+        $results = $this->db->execute();
+        if ($this->db->rowCount($results) == 0) {
+            return [];
+        } else {
+            $results = $this->db->resultSet();
+            return $results;
+        }
+    }
+
+    public function getCountNotApprovedCommentsYet(){
+        $this->db->query("SELECT
+                          COUNT(*) AS count FROM comments
+                          WHERE comments.approved = 0
+        ");
+
+        $result = $this->db->single();
+        return $result;
+    }
+
+    public function approveCommentById($commentId)
+    {
+        $this->db->query("UPDATE comments
+                          SET approved = 1
+                          WHERE comments.id = :commentId
+        ");
+
+        $this->db->bind(":commentId", $commentId, null);
+        $this->db->execute();
     }
 }
