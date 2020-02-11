@@ -4,6 +4,7 @@ class Pages extends Controller
     public function __construct()
     {
         $this->postModel = $this->model('Post');
+        $this->commentModel = $this->model('Comment');
     }
 
     public function index()
@@ -25,11 +26,13 @@ class Pages extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'title' => 'About Us',
                 'description' => 'App to share posts with other users',
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 

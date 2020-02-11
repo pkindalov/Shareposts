@@ -6,6 +6,7 @@ class Users extends Controller
         $this->userModel = $this->model('User');
         $this->likeModel = $this->model('Like');
         $this->postModel = $this->model('Post');
+        $this->commentModel = $this->model('Comment');
     }
 
     public function register()
@@ -180,6 +181,7 @@ class Users extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'users' => $users,
@@ -188,7 +190,8 @@ class Users extends Controller
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 
@@ -220,13 +223,15 @@ class Users extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'user' => $user,
                 'postsCount' => $userPostsCount,
                 'posts' => $lastUserPosts,
                 'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 
@@ -257,6 +262,7 @@ class Users extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'posts' => $userPosts,
@@ -267,7 +273,8 @@ class Users extends Controller
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 
@@ -303,6 +310,7 @@ class Users extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'posts' => $likedUserPosts,
@@ -313,7 +321,8 @@ class Users extends Controller
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 

@@ -3,6 +3,7 @@
         public function __construct()
         {
             $this->commentModel = $this->model('Comment');
+            $this->postModel = $this->model('Post');
         }
 
         public function addCommentToPost($postId){
@@ -94,7 +95,26 @@
             }
             
 
-
+            if($_SESSION['role'] == 'admin'){
+                $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet(); 
+                $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+                
+                $data = [
+                    'content' => $postAndComments,
+                    'page' => (int) $page,
+                    'hasNextPage' => count($content) > 0,
+                    'hasPrevPage' => $page > 1,
+                    'nextPage' => $page + 1,
+                    'prevPage' => $page - 1,
+                    'postId' => $postId,
+                    'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                    'notApprovedCommentsCount' => $notApprovedCommentsCount->count
+                ];
+        
+        
+                $this->view('comments/showCommentsOnPostById', $data);
+                return;
+            }
 
 
             // print_r($postAndComments);
@@ -113,4 +133,73 @@
             $this->view('comments/showCommentsOnPostById', $data);
 
         }
+
+        public function commentsForApproving($page){
+            $page = htmlspecialchars($page);
+            $pageSize = 5;
+            $commentsForApproving = $this->commentModel->getCommentsForApprove($page, $pageSize);
+            // $notApprovedCommentsCount = count($commentsForApproving);
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+
+            
+            if($_SESSION['role'] == 'admin'){
+                $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet(); 
+                $data = [
+                    'comments' => $commentsForApproving,
+                    'page' => (int) $page,
+                    'hasNextPage' => count($commentsForApproving) > 0,
+                    'hasPrevPage' => $page > 1,
+                    'nextPage' => $page + 1,
+                    'prevPage' => $page - 1,
+                    'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                    'notApprovedCommentsCount' => $notApprovedCommentsCount->count
+                ];
+        
+        
+                $this->view('comments/listCommentsForApprove', $data);
+                return;
+            } 
+
+            if (gettype($commentsForApproving) == 'array' && count($commentsForApproving) == 0) {
+                $data = [
+                    'comments' => '',
+                    'page' => (int) $page,
+                    'hasNextPage' => count($commentsForApproving) > 0,
+                    'hasPrevPage' => $page > 1,
+                    'nextPage' => $page + 1,
+                    'prevPage' => $page - 1
+                ];
+    
+                $this->view('comments/listCommentsForApprove', $data);
+                return;
+            }
+
+
+            
+
+            
+            
+            
+            $data = [
+                'comments' => $commentsForApproving,
+                'page' => (int) $page,
+                'hasNextPage' => count($commentsForApproving) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
+            ];
+            
+            // print_r($commentsForApproving);
+            $this->view('comments/listCommentsForApprove', $data);
+
+        }
+
+        public function approveComment($commentId)
+        {
+            $postId = htmlspecialchars($commentId);
+            $this->commentModel->approveCommentById($commentId);
+            redirect('/posts/commentsForApproving/1');
+        }
+
     }

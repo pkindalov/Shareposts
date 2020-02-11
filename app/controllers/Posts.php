@@ -135,12 +135,14 @@ class Posts extends Controller
 
             if ($_SESSION['role'] == 'admin') {
                 $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+                $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
                 $data = [
                     'id' => $postId,
                     'title' => $post->title,
                     'body' => $post->body,
-                    'notApprovedPostsCount' => $notApprovedPostsCount->count
+                    'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                    'notApprovedCommentsCount' => $notApprovedCommentsCount->count
                 ];
 
 
@@ -165,12 +167,14 @@ class Posts extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'post' => $post,
                 'user' => $user,
                 'likers' => $usersLikesPost,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 
@@ -225,9 +229,12 @@ class Posts extends Controller
         //to make query about not approved posts only if admin is logged
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $postsIds = $this->getPostsIds($posts);
             $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
+            
+
             $numOfComments = count((array) $comments);
     
             if ($numOfComments > 0) {
@@ -247,7 +254,8 @@ class Posts extends Controller
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count,
             ];
 
 
@@ -313,6 +321,7 @@ class Posts extends Controller
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'posts' => $posts,
@@ -321,7 +330,8 @@ class Posts extends Controller
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
 
