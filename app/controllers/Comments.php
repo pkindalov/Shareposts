@@ -1,185 +1,197 @@
 <?php
-    class Comments extends Controller{
-        public function __construct()
-        {
-            $this->commentModel = $this->model('Comment');
-            $this->postModel = $this->model('Post');
-        }
+class Comments extends Controller
+{
+    public function __construct()
+    {
+        $this->commentModel = $this->model('Comment');
+        $this->postModel = $this->model('Post');
+    }
 
-        public function addCommentToPost($postId){
+    public function addCommentToPost($postId)
+    {
 
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                //Sanitize post
-                $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-                $postId = htmlspecialchars($postId);
-    
-                $data = [
-                    'text' => trim($_POST['text']),
-                    'user_id' => $_SESSION['user_id'],
-                    'post_id' => $postId,
-                    'text_err' => '',
-                ];
-    
-                //Validate data
-                if (empty($_POST['text'])) {
-                    $data['text_err'] = 'Comment cannot be empty';
-                }
-    
-                //Make sure no errors
-                if (empty($data['text_err'])) {
-                    //Validated
-                    if ($this->commentModel->addComment($data)) {
-                        flash('comment_message', 'Comment added');
-                        redirect('posts');
-                    } else {
-                        die('Something wrong with adding comment');
-                    }
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            //Sanitize post
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $postId = htmlspecialchars($postId);
+
+            $data = [
+                'text' => trim($_POST['text']),
+                'user_id' => $_SESSION['user_id'],
+                'post_id' => $postId,
+                'text_err' => '',
+            ];
+
+            //Validate data
+            if (empty($_POST['text'])) {
+                $data['text_err'] = 'Comment cannot be empty';
+            }
+
+            //Make sure no errors
+            if (empty($data['text_err'])) {
+                //Validated
+                if ($this->commentModel->addComment($data)) {
+                    flash('comment_message', 'Comment added');
+                    redirect('posts');
                 } else {
-                    //Redirect to same view but with errors
-                    $this->view('comments/add', $data);
+                    die('Something wrong with adding comment');
                 }
             } else {
-    
-                $data = [
-                    'text' => '',
-                    'post_id' => $postId
-                ];
+                //Redirect to same view but with errors
                 $this->view('comments/add', $data);
             }
+        } else {
 
-            // $data = [
-            //     'postId' => $postId
-            // ];
+            $data = [
+                'text' => '',
+                'post_id' => $postId
+            ];
+            $this->view('comments/add', $data);
+        }
+    }
 
-            // $this->view('comments/add', $data);
+    public function editComment($commentId)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            //Sanitize post
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $commentId = htmlspecialchars($commentId);
+            $commentContent = isAdmin() ? trim($_POST['text'] . " <p>Edited By Admin</p>") : trim($_POST['text']);
+
+            $data = [
+                'text' => $commentContent,
+                // 'user_id' => $_SESSION['user_id'],
+                'comment_id' => $commentId,
+                'text_err' => '',
+            ];
+
+            //Validate data
+            if (empty($_POST['text'])) {
+                $data['text_err'] = 'Comment cannot be empty';
+            }
+
+            //Make sure no errors
+            if (empty($data['text_err'])) {
+                //Validated
+                if ($this->commentModel->editComment($data)) {
+                    flash('comment_message', 'Comment Edited');
+                    redirect('posts');
+                } else {
+                    die('Something wrong with adding comment');
+                }
+            } else {
+                //Redirect to same view but with errors
+                $this->view('comments/editComment', $data);
+            }
+        } else {
+            $oldComment = $this->commentModel->getCommentForEditById($commentId);
+            if(!$oldComment){
+                redirect('posts');
+            }
+
+            if($oldComment->user_id != $_SESSION['user_id'] && $_SESSION['role'] != 'admin'){
+                redirect('posts');
+            }
+
+            $data = [
+                'text' => $oldComment->text,
+                'comment_id' => $commentId
+            ];
+            $this->view('comments/editComment', $data);
+        }
+    }
+
+    public function showCommentOnPost($url)
+    {
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+        $queryStr = explode('&', $url);
+        $postId = explode('=', $queryStr[1])[1];
+        $page = explode('=', $queryStr[2])[1];
+        $pageSize = 10;
+
+        if (!isset($page)) {
+            $page = 1;
         }
 
-        public function showCommentOnPost($url){
-            $url = filter_var($url, FILTER_SANITIZE_URL);
-            $queryStr = explode('&', $url);
-            $postId = explode('=', $queryStr[1])[1];
-            $page = explode('=', $queryStr[2])[1];
-            $pageSize = 10;
-            
-            if(!isset($page)){
-                $page = 1;
+
+
+        $content = $this->commentModel->getCommentsToPostPage($postId, (int) $page, $pageSize);
+        $postAndComments = [];
+
+        // print_r($content);
+
+        if (count($content) > 0) {
+
+            $postAndComments['postTitle'] = $content[0]->postTitle;
+            $postAndComments['postContent'] = $content[0]->postContent;
+            $postAndComments['postCreatedOn'] = $content[0]->postCreatedOn;
+            $postAndComments['postUserName'] = $content[0]->postUserName;
+            $postAndComments['postUserEmail'] = $content[0]->postUserEmail;
+            $postAndComments['voted'] = $content[0]->voted;
+            $postAndComments['userId'] = $content[0]->userId;
+            $postAndComments['postId'] = $content[0]->postId;
+            $postAndComments['totalLikes'] = $content[0]->totalLikes;
+
+
+            foreach ($content as $cont) {
+                $postAndComments['commentInfo']['commentText'][] = $cont->commentText;
+                $postAndComments['commentInfo']['commentCreated'][] = $cont->commentCreated;
+                $postAndComments['commentInfo']['commentAuthorName'][] = $cont->commentAuthorName;
+                $postAndComments['commentInfo']['commentAuthorEmail'][] = $cont->commentAuthorEmail;
+                $postAndComments['commentInfo']['commentAuthor'][] = $cont->commentAuthor;
             }
+        }
 
 
-
-            $content = $this->commentModel->getCommentsToPostPage($postId, (int)$page, $pageSize);
-            $postAndComments = [];
-
-            // print_r($content);
-
-            if(count($content) > 0){
-
-                $postAndComments['postTitle'] = $content[0]->postTitle;
-                $postAndComments['postContent'] = $content[0]->postContent;
-                $postAndComments['postCreatedOn'] = $content[0]->postCreatedOn;
-                $postAndComments['postUserName'] = $content[0]->postUserName;
-                $postAndComments['postUserEmail'] = $content[0]->postUserEmail;
-                $postAndComments['voted'] = $content[0]->voted;
-                $postAndComments['userId'] = $content[0]->userId;
-                $postAndComments['postId'] = $content[0]->postId;
-                $postAndComments['totalLikes'] = $content[0]->totalLikes;
-    
-                
-                foreach($content as $cont){
-                    $postAndComments['commentInfo']['commentText'][] = $cont->commentText;
-                    $postAndComments['commentInfo']['commentCreated'][] = $cont->commentCreated;
-                    $postAndComments['commentInfo']['commentAuthorName'][] = $cont->commentAuthorName;
-                    $postAndComments['commentInfo']['commentAuthorEmail'][] = $cont->commentAuthorEmail;
-                    $postAndComments['commentInfo']['commentAuthor'][] = $cont->commentAuthor;
-                }
-            }
-            
-
-            if($_SESSION['role'] == 'admin'){
-                $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet(); 
-                $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-                
-                $data = [
-                    'content' => $postAndComments,
-                    'page' => (int) $page,
-                    'hasNextPage' => count($content) > 0,
-                    'hasPrevPage' => $page > 1,
-                    'nextPage' => $page + 1,
-                    'prevPage' => $page - 1,
-                    'postId' => $postId,
-                    'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                    'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-                ];
-        
-        
-                $this->view('comments/showCommentsOnPostById', $data);
-                return;
-            }
-
-
-            // print_r($postAndComments);
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
             $data = [
                 'content' => $postAndComments,
-                'page' => $page,
+                'page' => (int) $page,
                 'hasNextPage' => count($content) > 0,
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
-                'postId' => $postId
+                'postId' => $postId,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
+                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
 
-           
-            $this->view('comments/showCommentsOnPostById', $data);
 
+            $this->view('comments/showCommentsOnPostById', $data);
+            return;
         }
 
-        public function commentsForApproving($page){
-            $page = htmlspecialchars($page);
-            $pageSize = 5;
-            $commentsForApproving = $this->commentModel->getCommentsForApprove($page, $pageSize);
-            // $notApprovedCommentsCount = count($commentsForApproving);
-            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
-            
-            if($_SESSION['role'] == 'admin'){
-                $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet(); 
-                $data = [
-                    'comments' => $commentsForApproving,
-                    'page' => (int) $page,
-                    'hasNextPage' => count($commentsForApproving) > 0,
-                    'hasPrevPage' => $page > 1,
-                    'nextPage' => $page + 1,
-                    'prevPage' => $page - 1,
-                    'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                    'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-                ];
-        
-        
-                $this->view('comments/listCommentsForApprove', $data);
-                return;
-            } 
+        // print_r($postAndComments);
 
-            if (gettype($commentsForApproving) == 'array' && count($commentsForApproving) == 0) {
-                $data = [
-                    'comments' => '',
-                    'page' => (int) $page,
-                    'hasNextPage' => count($commentsForApproving) > 0,
-                    'hasPrevPage' => $page > 1,
-                    'nextPage' => $page + 1,
-                    'prevPage' => $page - 1
-                ];
-    
-                $this->view('comments/listCommentsForApprove', $data);
-                return;
-            }
+        $data = [
+            'content' => $postAndComments,
+            'page' => $page,
+            'hasNextPage' => count($content) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1,
+            'postId' => $postId
+        ];
 
 
-            
+        $this->view('comments/showCommentsOnPostById', $data);
+    }
 
-            
-            
-            
+    public function commentsForApproving($page)
+    {
+        $page = htmlspecialchars($page);
+        $pageSize = 5;
+        $commentsForApproving = $this->commentModel->getCommentsForApprove($page, $pageSize);
+        // $notApprovedCommentsCount = count($commentsForApproving);
+        $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
             $data = [
                 'comments' => $commentsForApproving,
                 'page' => (int) $page,
@@ -187,19 +199,53 @@
                 'hasPrevPage' => $page > 1,
                 'nextPage' => $page + 1,
                 'prevPage' => $page - 1,
+                'notApprovedPostsCount' => $notApprovedPostsCount->count,
                 'notApprovedCommentsCount' => $notApprovedCommentsCount->count
             ];
-            
-            // print_r($commentsForApproving);
+
+
             $this->view('comments/listCommentsForApprove', $data);
-
+            return;
         }
 
-        public function approveComment($commentId)
-        {
-            $postId = htmlspecialchars($commentId);
-            $this->commentModel->approveCommentById($commentId);
-            redirect('/posts/commentsForApproving/1');
+        if (gettype($commentsForApproving) == 'array' && count($commentsForApproving) == 0) {
+            $data = [
+                'comments' => '',
+                'page' => (int) $page,
+                'hasNextPage' => count($commentsForApproving) > 0,
+                'hasPrevPage' => $page > 1,
+                'nextPage' => $page + 1,
+                'prevPage' => $page - 1
+            ];
+
+            $this->view('comments/listCommentsForApprove', $data);
+            return;
         }
 
+
+
+
+
+
+
+        $data = [
+            'comments' => $commentsForApproving,
+            'page' => (int) $page,
+            'hasNextPage' => count($commentsForApproving) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1,
+            'notApprovedCommentsCount' => $notApprovedCommentsCount->count
+        ];
+
+        // print_r($commentsForApproving);
+        $this->view('comments/listCommentsForApprove', $data);
     }
+
+    public function approveComment($commentId)
+    {
+        $postId = htmlspecialchars($commentId);
+        $this->commentModel->approveCommentById($commentId);
+        redirect('/posts/commentsForApproving/1');
+    }
+}

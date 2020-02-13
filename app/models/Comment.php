@@ -37,14 +37,13 @@ class Comment
         ");
         $this->db->bind(":numberList", $numberList, null);
         $result = $this->db->execute();
-       
-        if($this->db->rowCount($result) == 0){
+
+        if ($this->db->rowCount($result) == 0) {
             return [];
         } else {
             $result = $this->db->resultSet();
             return $result;
         }
-
     }
 
     public function getCommentsToPostPage($postId, $page, $pageSize)
@@ -110,8 +109,8 @@ class Comment
           OFFSET :offset
         ");
 
-        $this->db->bind(":limit", $pageSize, null); 
-        $this->db->bind(":offset", $offset, null); 
+        $this->db->bind(":limit", $pageSize, null);
+        $this->db->bind(":offset", $offset, null);
 
         $results = $this->db->execute();
         if ($this->db->rowCount($results) == 0) {
@@ -122,7 +121,8 @@ class Comment
         }
     }
 
-    public function getCountNotApprovedCommentsYet(){
+    public function getCountNotApprovedCommentsYet()
+    {
         $this->db->query("SELECT
                           COUNT(*) AS count FROM comments
                           WHERE comments.approved = 0
@@ -141,5 +141,34 @@ class Comment
 
         $this->db->bind(":commentId", $commentId, null);
         $this->db->execute();
+    }
+
+    public function getCommentForEditById($commentId)
+    {
+        $this->db->query("SELECT comments.id, comments.text, comments.user_id
+                          FROM comments
+                          WHERE comments.id = :commentId
+        ");
+
+        $this->db->bind(":commentId", $commentId, null);
+
+        $result = $this->db->single();
+        return $result;
+    }
+
+    public function editComment($comment)
+    {
+        // print_r($comment);
+        $this->db->query('UPDATE comments SET text = :text WHERE comments.id = :commentId');
+
+        $this->db->bind(':text', $comment['text'], null);
+        $this->db->bind(':commentId', $comment['comment_id'], null);
+
+        //Execute
+        if ($this->db->execute()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

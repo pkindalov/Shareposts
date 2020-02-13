@@ -233,10 +233,10 @@ class Posts extends Controller
 
             $postsIds = $this->getPostsIds($posts);
             $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
-            
+
 
             $numOfComments = count((array) $comments);
-    
+
             if ($numOfComments > 0) {
                 for ($c = 0; $c < count($comments); $c++) {
                     for ($p = 0; $p < count($posts); $p++) {
