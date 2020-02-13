@@ -183,6 +183,10 @@ class Comments extends Controller
 
     public function commentsForApproving($page)
     {
+        if($_SESSION['role'] != 'admin'){
+            redirect('posts');
+        }
+
         $page = htmlspecialchars($page);
         $pageSize = 5;
         $commentsForApproving = $this->commentModel->getCommentsForApprove($page, $pageSize);
@@ -244,6 +248,9 @@ class Comments extends Controller
 
     public function approveComment($commentId)
     {
+        if($_SESSION['role'] != 'admin'){
+            redirect('posts');
+        }
         $postId = htmlspecialchars($commentId);
         $this->commentModel->approveCommentById($commentId);
         redirect('/posts/commentsForApproving/1');

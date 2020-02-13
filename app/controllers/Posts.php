@@ -309,6 +309,10 @@ class Posts extends Controller
 
     public function postsForApproving($page)
     {
+        if($_SESSION['role'] != 'admin'){
+            redirect('posts');
+        }
+
         if (!isset($page) || !$page) {
             $page = 1;
         }
@@ -368,6 +372,10 @@ class Posts extends Controller
 
     public function approvePost($postId)
     {
+        if($_SESSION['role'] != 'admin'){
+            redirect('posts');
+        }
+
         $postId = htmlspecialchars($postId);
         $this->postModel->approvePostById($postId);
         redirect('/posts/postsForApproving/1');

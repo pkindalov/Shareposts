@@ -61,7 +61,7 @@ class User
 
     public function getUserById($userId)
     {
-        $this->db->query("SELECT users.id, users.name FROM users WHERE id = :userId");
+        $this->db->query("SELECT users.id, users.name, users.role, users.created_at, users.email FROM users WHERE id = :userId");
         $this->db->bind(':userId', $userId, null);
         $row = $this->db->single();
         return $row;

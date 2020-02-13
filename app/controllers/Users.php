@@ -171,6 +171,10 @@ class Users extends Controller
 
     public function listUsers($page)
     {
+        if($_SESSION['role'] != 'admin'){
+            redirect('posts');
+        }
+
         if (!isset($page) || !$page) {
             $page = 1;
         }
