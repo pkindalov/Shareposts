@@ -61,7 +61,7 @@ class User
 
     public function getUserById($userId)
     {
-        $this->db->query("SELECT * FROM users WHERE id = :userId");
+        $this->db->query("SELECT users.id, users.name FROM users WHERE id = :userId");
         $this->db->bind(':userId', $userId, null);
         $row = $this->db->single();
         return $row;
@@ -77,7 +77,7 @@ class User
         $offset = ($page - 1) * $pageSize;
 
         // echo $offset;
-        $this->db->query("SELECT *
+        $this->db->query("SELECT users.id, users.name, users.email, users.created_at, users.role
                                 FROM users 
                                 WHERE users.role = 'user'
                                 LIMIT :limit

@@ -10,7 +10,7 @@ class Post
 
     public function getPosts()
     {
-        $this->db->query("SELECT *, 
+        $this->db->query("SELECT, 
                                 posts.id AS postId, 
                                 users.id AS userId,
                                 posts.created_at AS postCreated,

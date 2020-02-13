@@ -1,4 +1,7 @@
 <?php require_once APPROOT . '/views/inc/header.php' ?>
+<!-- <pre>
+    <?php print_r($data); ?>
+</pre> -->
 <div class="row mb-3">
     <div class="col-md-6">
         <h1>Users</h1>
