@@ -46,12 +46,53 @@
 
                 <?php if ($post->userId == $_SESSION['user_id'] || $_SESSION['role'] == 'admin') : ?>
                     <hr />
-                    <div class="mt-3 mb-3">
+                    <!-- <div class="mt-3 mb-3">
                         <a href="<?php echo URLROOT; ?>/posts/edit/<?php echo $post->postId; ?>" class="btn btn-dark">Edit</a>
                         <form class="pull-right" action="<?php echo URLROOT; ?>/posts/delete/<?php echo $posr->postId; ?>" method="post">
                             <input type="submit" value="Delete" class="btn btn-danger" />
                         </form>
+                    </div> -->
+
+                    <div class="mt-3 mb-3">
+                        <a href="<?php echo URLROOT; ?>/posts/edit/<?php echo $post->postId; ?>" class="btn btn-dark">Edit</a>
+
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#post<?php echo $post->postId; ?>">
+                            Delete
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="post<?php echo $post->postId; ?>" tabindex="-1" role="dialog" aria-labelledby="postLabel<?php echo $post->postId; ?>" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="postLabel<?php echo $post->postId; ?>">Are you sure to delete <?php echo $post->title; ?>?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <?php echo $post->body; ?>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                        <form class="pull-right" action="<?php echo URLROOT; ?>/posts/delete/<?php echo $posr->postId; ?>" method="post">
+                                            <input type="submit" value="Delete" class="btn btn-danger" />
+                                        </form>
+                                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
                     </div>
+
+
+
+
                 <?php endif; ?>
 
 
@@ -95,7 +136,7 @@
 
             </div>
 
-
+                   
 
             <?php if (isset($post->comment) && count($post->comment) > 0) : ?>
 
@@ -121,7 +162,41 @@
                                     <div>
                                         <a class="btn btn-info" href="<?php echo URLROOT ?>/comments/editComment/<?php echo $comment->id; ?>">Edit</a>
 
-                                        <a class="btn btn-danger" href="<?php echo URLROOT ?>/comments/deleteComment/<?php echo $comment->id; ?>">Delete</a>
+                                        <!-- <a class="btn btn-danger" href="<?php echo URLROOT ?>/comments/deleteComment/<?php echo $comment->id; ?>">Delete</a> -->
+
+
+                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#comment<?php echo $comment->id; ?>">
+                                            Delete
+                                        </button>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="comment<?php echo $comment->id; ?>" tabindex="-1" role="dialog" aria-labelledby="commentLabel<?php echo $comment->id; ?>" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="commentLabel<?php echo $comment->id; ?>">Are you sure to delete <?php echo $comment->text; ?>?</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <?php echo $comment->text; ?>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                                        <a class="btn btn-danger" href="<?php echo URLROOT ?>/comments/deleteComment/<?php echo $comment->id; ?>">Delete</a>
+                                                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+
+
 
                                     </div>
                                 <?php endif; ?>

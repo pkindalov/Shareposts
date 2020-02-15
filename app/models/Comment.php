@@ -28,16 +28,18 @@ class Comment
 
     public function getCommentsByPostsIds($postsIds)
     {
-        $numberList = join(',', $postsIds);
-        $this->db->query("SELECT comments.*, users.name, users.email, users.role FROM comments 
+        $numberList =  join(',', $postsIds);
+        $query = $this->db->query("SELECT comments.*, users.name, users.email, users.role FROM comments 
                           INNER JOIN users ON users.id = comments.user_id
-                          WHERE comments.post_id IN (:numberList) AND comments.approved = 1
+                        --   WHERE comments.post_id IN ({$numberList}) AND comments.approved = 1
+                          WHERE comments.post_id IN ({$numberList}) AND comments.approved = 1
                           LIMIT 5
         
         ");
-        $this->db->bind(":numberList", $numberList, null);
+        // $this->db->bind(':numList', $numberList, null);
         $result = $this->db->execute();
 
+        
         if ($this->db->rowCount($result) == 0) {
             return [];
         } else {
@@ -170,5 +172,11 @@ class Comment
         } else {
             return false;
         }
+    }
+
+    public function deleteCommentById($commentId){
+        $this->db->query("DELETE FROM comments WHERE comments.id = :commentId");
+        $this->db->bind(":commentId", $commentId, null);
+        return $this->db->execute();
     }
 }

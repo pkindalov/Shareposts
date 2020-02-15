@@ -227,11 +227,6 @@ class Comments extends Controller
         }
 
 
-
-
-
-
-
         $data = [
             'comments' => $commentsForApproving,
             'page' => (int) $page,
@@ -254,5 +249,18 @@ class Comments extends Controller
         $postId = htmlspecialchars($commentId);
         $this->commentModel->approveCommentById($commentId);
         redirect('/posts/commentsForApproving/1');
+    }
+
+    public function deleteComment($commentId){
+        $commentId = htmlspecialchars($commentId);
+        if(!isset($commentId) || !$commentId){
+            throw new Exception('Invalid comment id');
+        }
+        if($this->commentModel->deleteCommentById($commentId)){
+            flash('comment_message', 'Comment deleted successfull');
+            redirect('posts');
+        } 
+
+        throw new Exception('Problem with deleting comment');
     }
 }
