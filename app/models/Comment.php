@@ -48,6 +48,26 @@ class Comment
         }
     }
 
+    public function getCommentsOfPostById($postId){
+        $postId = htmlspecialchars($postId);
+        $this->db->query("  SELECT comments.*, users.name 
+                            FROM comments 
+                            JOIN users ON users.id = comments.user_id
+                            WHERE comments.post_id = :postId
+                            AND comments.approved = 1
+                            LIMIT 5
+        ");
+        $this->db->bind(":postId", $postId, null);
+        $result = $this->db->execute();
+
+        if ($this->db->rowCount($result) == 0) {
+            return [];
+        } else {
+            $result = $this->db->resultSet();
+            return $result;
+        }
+    }
+
     public function getCommentsToPostPage($postId, $page, $pageSize)
     {
         $page  = $page == 0 ? 1 : $page;
