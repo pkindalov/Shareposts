@@ -176,7 +176,7 @@ class Posts extends Controller
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
             $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
-            if ($this->checkIfArrAndIfEmpty($comments)) {
+            if (checkIfArrAndIfEmpty($comments)) {
                 $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
                 $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
                 $data['comments'] = [];
@@ -199,7 +199,7 @@ class Posts extends Controller
             return;
         }
 
-        if ($this->checkIfArrAndIfEmpty($comments)) {
+        if (checkIfArrAndIfEmpty($comments)) {
             $data['comments'] = [];
             $this->view('posts/show', $data);
             return;
@@ -262,7 +262,7 @@ class Posts extends Controller
         //to make query about not approved posts only if admin is logged
         if ($_SESSION['role'] == 'admin') {
 
-            if ($this->checkIfArrAndIfEmpty($posts)) {
+            if (checkIfArrAndIfEmpty($posts)) {
                 $data['posts'] = '';
                 $this->view('posts/index', $data);
                 return;
@@ -270,10 +270,10 @@ class Posts extends Controller
 
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
             $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-            
+
             $postsIds = $this->getPostsIds($posts);
             $comments = $this->commentModel->getCommentsByPostsIds($postsIds);
-            
+
 
 
             $numOfComments = count((array) $comments);
@@ -287,15 +287,15 @@ class Posts extends Controller
                     }
                 }
             }
-            
+
             $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
             $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
             $this->view('posts/index', $data);
             return;
         }
 
-        if ($this->checkIfArrAndIfEmpty($posts)) {
-            $data['posts'] = '';     
+        if (checkIfArrAndIfEmpty($posts)) {
+            $data['posts'] = '';
             $this->view('posts/index', $data);
             return;
         }
@@ -330,15 +330,20 @@ class Posts extends Controller
         $page = (int) $page;
         $pageSize = 15;
         $posts = $this->postModel->getPostsForApproving($page, $pageSize);
+        $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+        $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+
         $data = [
             'posts' => $posts,
             'page' => (int) $page,
             'hasNextPage' => count($posts) > 0,
             'hasPrevPage' => $page > 1,
             'nextPage' => $page + 1,
-            'prevPage' => $page - 1
+            'prevPage' => $page - 1,
+            'notApprovedPostsCount' => $notApprovedPostsCount->count,
+            'notApprovedCommentsCount' => $notApprovedCommentsCount->count
         ];
-        if ($this->checkIfArrAndIfEmpty($posts)) {
+        if (checkIfArrAndIfEmpty($posts)) {
             $data['posts'] = '';
             $this->view('posts/listPostsForApproving', $data);
             return;
@@ -365,14 +370,5 @@ class Posts extends Controller
         }
 
         return $ids;
-    }
-
-    private function checkIfArrAndIfEmpty($data)
-    {
-        if (gettype($data) == 'array' && count($data) == 0) {
-            return true;
-        }
-
-        return false;
     }
 }

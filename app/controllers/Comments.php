@@ -142,31 +142,6 @@ class Comments extends Controller
             }
         }
 
-
-        if ($_SESSION['role'] == 'admin') {
-            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
-            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-
-            $data = [
-                'content' => $postAndComments,
-                'page' => (int) $page,
-                'hasNextPage' => count($content) > 0,
-                'hasPrevPage' => $page > 1,
-                'nextPage' => $page + 1,
-                'prevPage' => $page - 1,
-                'postId' => $postId,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-            ];
-
-
-            $this->view('comments/showCommentsOnPostById', $data);
-            return;
-        }
-
-
-        // print_r($postAndComments);
-
         $data = [
             'content' => $postAndComments,
             'page' => $page,
@@ -177,7 +152,14 @@ class Comments extends Controller
             'postId' => $postId
         ];
 
-
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+            $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
+            $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
+            $this->view('comments/showCommentsOnPostById', $data);
+            return;
+        }
         $this->view('comments/showCommentsOnPostById', $data);
     }
 
@@ -192,40 +174,7 @@ class Comments extends Controller
         $commentsForApproving = $this->commentModel->getCommentsForApprove($page, $pageSize);
         // $notApprovedCommentsCount = count($commentsForApproving);
         $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-
-
-        if ($_SESSION['role'] == 'admin') {
-            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
-            $data = [
-                'comments' => $commentsForApproving,
-                'page' => (int) $page,
-                'hasNextPage' => count($commentsForApproving) > 0,
-                'hasPrevPage' => $page > 1,
-                'nextPage' => $page + 1,
-                'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-            ];
-
-
-            $this->view('comments/listCommentsForApprove', $data);
-            return;
-        }
-
-        if (gettype($commentsForApproving) == 'array' && count($commentsForApproving) == 0) {
-            $data = [
-                'comments' => '',
-                'page' => (int) $page,
-                'hasNextPage' => count($commentsForApproving) > 0,
-                'hasPrevPage' => $page > 1,
-                'nextPage' => $page + 1,
-                'prevPage' => $page - 1
-            ];
-
-            $this->view('comments/listCommentsForApprove', $data);
-            return;
-        }
-
+        $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
 
         $data = [
             'comments' => $commentsForApproving,
@@ -234,10 +183,15 @@ class Comments extends Controller
             'hasPrevPage' => $page > 1,
             'nextPage' => $page + 1,
             'prevPage' => $page - 1,
+            'notApprovedPostsCount' => $notApprovedPostsCount->count,
             'notApprovedCommentsCount' => $notApprovedCommentsCount->count
         ];
 
-        // print_r($commentsForApproving);
+        if (checkIfArrAndIfEmpty($commentsForApproving)) {
+            $data['comments'] = '';
+            $this->view('comments/listCommentsForApprove', $data);
+            return;
+        }
         $this->view('comments/listCommentsForApprove', $data);
     }
 

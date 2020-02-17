@@ -171,7 +171,7 @@ class Users extends Controller
 
     public function listUsers($page)
     {
-        if($_SESSION['role'] != 'admin'){
+        if ($_SESSION['role'] != 'admin') {
             redirect('posts');
         }
 
@@ -182,34 +182,18 @@ class Users extends Controller
         $page = (int) $page;
         $pageSize = 10;
         $users = $this->userModel->getUsersPaginated($page, $pageSize);
-
-        if ($_SESSION['role'] == 'admin') {
-            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
-            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-
-            $data = [
-                'users' => $users,
-                'page' => (int) $page,
-                'hasNextPage' => count($users) > 0,
-                'hasPrevPage' => $page > 1,
-                'nextPage' => $page + 1,
-                'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-            ];
-
-
-            $this->view('users/listUsers', $data);
-            return;
-        }
+        $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+        $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
 
         $data = [
             'users' => $users,
-            'page' => $page,
+            'page' => (int) $page,
             'hasNextPage' => count($users) > 0,
             'hasPrevPage' => $page > 1,
             'nextPage' => $page + 1,
-            'prevPage' => $page - 1
+            'prevPage' => $page - 1,
+            'notApprovedPostsCount' => $notApprovedPostsCount->count,
+            'notApprovedCommentsCount' => $notApprovedCommentsCount->count
         ];
 
         $this->view('users/listUsers', $data);
@@ -225,26 +209,6 @@ class Users extends Controller
         $lastUserPosts = $this->userModel->getLastPosts($userId, 2);
         $likedPostsCount = $this->likeModel->getCountOfTheUserLikedPosts($userId);
 
-        if ($_SESSION['role'] == 'admin') {
-            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
-            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-
-            $data = [
-                'user' => $user,
-                'postsCount' => $userPostsCount,
-                'posts' => $lastUserPosts,
-                'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-            ];
-
-
-            $this->view('users/userProfile', $data);
-            return;
-        }
-
-
-
         $data = [
             'user' => $user,
             'postsCount' => $userPostsCount,
@@ -252,40 +216,25 @@ class Users extends Controller
             'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount
         ];
 
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+            $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
+            $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
+            $this->view('users/userProfile', $data);
+            return;
+        }
+
         $this->view('users/userProfile', $data);
     }
 
     public function getUserPosts($url)
     {
-        // print_r($url);
         $userId = extractUserId($url);
         $page = extractPageNum($url);
         $pageSize = 10;
         $userPosts = $this->userModel->getUsersPostWithPag($userId, $page, $pageSize);
         $userName =  $this->userModel->getUserById($userId);
-
-        if ($_SESSION['role'] == 'admin') {
-            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
-            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-
-            $data = [
-                'posts' => $userPosts,
-                'page' => $page,
-                'userId' => $userId,
-                'userName' => $userName,
-                'hasNextPage' => count($userPosts) > 0,
-                'hasPrevPage' => $page > 1,
-                'nextPage' => $page + 1,
-                'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-            ];
-
-
-            $this->view('users/posts', $data);
-            return;
-        }
-
         $data = [
             'posts' => $userPosts,
             'page' => $page,
@@ -296,44 +245,27 @@ class Users extends Controller
             'nextPage' => $page + 1,
             'prevPage' => $page - 1
         ];
-        // print_r($data);
 
-        // echo $queryStr;
-        // var_dump(explode('&', $url));
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+            $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
+            $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
+            $this->view('users/posts', $data);
+            return;
+        }
+
+
         $this->view('users/posts', $data);
     }
 
     public function getLikedUserPosts($url)
     {
-        // print_r($url);
         $userId = extractUserId($url);
         $page = extractPageNum($url);
         $pageSize = 10;
         $likedUserPosts = $this->userModel->getUserLikedPostWithPag($userId, $page, $pageSize);
         $userName =  $this->userModel->getUserById($userId);
-
-        if ($_SESSION['role'] == 'admin') {
-            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
-            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
-
-            $data = [
-                'posts' => $likedUserPosts,
-                'page' => $page,
-                'userId' => $userId,
-                'userName' => $userName,
-                'hasNextPage' => count($likedUserPosts) > 0,
-                'hasPrevPage' => $page > 1,
-                'nextPage' => $page + 1,
-                'prevPage' => $page - 1,
-                'notApprovedPostsCount' => $notApprovedPostsCount->count,
-                'notApprovedCommentsCount' => $notApprovedCommentsCount->count
-            ];
-
-
-            $this->view('users/listLikedPosts', $data);
-            return;
-        }
-
         $data = [
             'posts' => $likedUserPosts,
             'page' => $page,
@@ -344,10 +276,15 @@ class Users extends Controller
             'nextPage' => $page + 1,
             'prevPage' => $page - 1
         ];
-        // print_r($data);
 
-        // echo $queryStr;
-        // var_dump(explode('&', $url));
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+            $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
+            $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
+            $this->view('users/listLikedPosts', $data);
+            return;
+        }
         $this->view('users/listLikedPosts', $data);
     }
 
@@ -371,6 +308,7 @@ class Users extends Controller
         unset($_SESSION['user_id']);
         unset($_SESSION['user_email']);
         unset($_SESSION['user_name']);
+        unset($_SESSION['role']);
         session_destroy();
         redirect('users/login');
     }
