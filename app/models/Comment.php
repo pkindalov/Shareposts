@@ -39,7 +39,7 @@ class Comment
         // $this->db->bind(':numList', $numberList, null);
         $result = $this->db->execute();
 
-        
+
         if ($this->db->rowCount($result) == 0) {
             return [];
         } else {
@@ -48,7 +48,8 @@ class Comment
         }
     }
 
-    public function getCommentsOfPostById($postId){
+    public function getCommentsOfPostById($postId)
+    {
         $postId = htmlspecialchars($postId);
         $this->db->query("  SELECT comments.*, users.name 
                             FROM comments 
@@ -194,9 +195,35 @@ class Comment
         }
     }
 
-    public function deleteCommentById($commentId){
+    public function deleteCommentById($commentId)
+    {
         $this->db->query("DELETE FROM comments WHERE comments.id = :commentId");
         $this->db->bind(":commentId", $commentId, null);
         return $this->db->execute();
+    }
+
+    public function getLatestUserComments($userId, $count)
+    {
+        $this->db->query("SELECT comments.text AS comment, comments.created_at, comments.id AS commentId,
+        users.name, users.email,
+        posts.title AS postTitle, posts.id AS postId
+        FROM comments 
+        INNER JOIN users ON users.id = comments.user_id
+        INNER JOIN posts ON posts.id = comments.post_id
+        WHERE comments.user_id = :userId AND comments.approved = 1
+        LIMIT :limit
+        ");
+
+        $this->db->bind(":userId", $userId, null);
+        $this->db->bind(":limit", $count, null);
+
+        $results = $this->db->execute();
+        if ($this->db->rowCount($results) == 0) {
+            return [];
+        } else {
+            $results = $this->db->resultSet();
+            return $results;
+        }
+
     }
 }

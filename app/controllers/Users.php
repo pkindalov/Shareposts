@@ -208,13 +208,16 @@ class Users extends Controller
         $userPostsCount = $this->userModel->getUserPostsCount($userId);
         $lastUserPosts = $this->userModel->getLastPosts($userId, 2);
         $likedPostsCount = $this->likeModel->getCountOfTheUserLikedPosts($userId);
-
+        $userLatestComments = $this->commentModel->getLatestUserComments($userId, 2);
+        
         $data = [
             'user' => $user,
             'postsCount' => $userPostsCount,
             'posts' => $lastUserPosts,
             'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount
         ];
+
+        $data['comments'] = checkIfArrAndIfEmpty($userLatestComments) ? '' : $userLatestComments;
 
         if ($_SESSION['role'] == 'admin') {
             $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
