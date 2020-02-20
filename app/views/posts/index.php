@@ -4,6 +4,12 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <h1>Posts</h1>
+        <?php if($_SESSION['role'] != 'admin') : ?>
+            <p>
+               Not Approved posts <a href="<?php echo URLROOT; ?>/users/getUserNotApprovedPosts?id=<?php echo $_SESSION['user_id']; ?>?page=1"><?php echo $data['countNotApprovedPosts'] ?></a>
+               Approved posts <a href="<?php echo URLROOT; ?>/users/getUserPosts?id=<?php echo $_SESSION['user_id']; ?>?page=1"><?php echo $data['countApprovedPosts'] ?></a>
+            </p>
+        <?php endif; ?>
         <!-- <pre>
             <?php print_r($data); ?>
         </pre> -->

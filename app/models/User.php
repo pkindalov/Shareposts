@@ -118,6 +118,33 @@ class User
         return $result;
     }
 
+    public function getUsersNotApprovedPostWithPag($userId, $page, $pageSize)
+    {
+        $page  = $page == 0 ? 1 : $page;
+        $offset = ($page - 1) * $pageSize;
+        $this->db->query("
+            SELECT posts.*, users.name 
+            FROM posts 
+            INNER JOIN users ON users.id = posts.user_id 
+            WHERE posts.user_id = :userId AND posts.approved = 0
+            LIMIT :limit 
+            OFFSET :offset
+        ");
+        $this->db->bind(":userId", $userId, null);
+        $this->db->bind(":limit", $pageSize, null);
+        $this->db->bind(":offset", $offset, null);
+        
+
+        $results = $this->db->execute();
+        if ($this->db->rowCount($results) == 0) {
+            return [];
+        } else {
+            $results = $this->db->resultSet();
+            return $results;
+        }
+
+    }
+
     public function getUserLikedPostWithPag($userId, $page, $pageSize)
     {
         $page  = $page == 0 ? 1 : $page;

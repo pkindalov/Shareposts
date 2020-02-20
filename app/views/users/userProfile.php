@@ -13,6 +13,16 @@
         <h5>Total count of posts: <a href="<?php echo URLROOT; ?>/users/getUserPosts?id=<?php echo $data['user']->id; ?>?page=1"><?php echo $data['postsCount']; ?></a></h5>
 
         <h5>Liked posts: <a href="<?php echo URLROOT; ?>/users/getLikedUserPosts?id=<?php echo $data['user']->id; ?>?page=1"><?php echo $data['userLikedPostsCount']; ?></a></h5>
+
+
+        <?php if($_SESSION['role'] != 'admin') : ?>
+            
+               <h5>Not Approved posts<a href="<?php echo URLROOT; ?>/users/getUserNotApprovedPosts?id=<?php echo $_SESSION['user_id']; ?>?page=1"><?php echo $data['countNotApprovedPosts'] ?></a></h5>
+               <h5>Approved posts <a href="<?php echo URLROOT; ?>/users/getUserPosts?id=<?php echo $_SESSION['user_id']; ?>?page=1"><?php echo $data['countApprovedPosts'] ?></a></h5>
+            
+        <?php endif; ?>
+
+
         <!-- <p>All registered users <strong>but not Admins</strong></p> -->
         <!-- <p><?php echo URLROOT; ?>/users/getUserPosts?id=<?php echo $data['user']->id; ?>&&page=1</p> -->
     </div>
