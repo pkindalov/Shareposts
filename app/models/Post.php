@@ -249,4 +249,30 @@ class Post
         $result = $this->db->single();
         return $result;
     }
+
+    public function countApprovedPostsByUserId($currentUser){
+        $this->db->query("SELECT COUNT(*) AS approvedPostsCount, posts.user_id FROM posts
+                          GROUP BY posts.approved
+                          HAVING posts.user_id = :userId
+        ");
+
+        $this->db->bind(":userId", $currentUser, null);
+        $result = $this->db->single();
+        $result = empty($result) ? 0 : $result->approvedPostsCount; 
+
+        return $result;
+    }
+
+    public function countNotApprovedPostsByUserId($currentUser){
+        $this->db->query("SELECT COUNT(*) AS notApprovedPostsCount, posts.user_id FROM posts
+                          GROUP BY posts.approved
+                          HAVING posts.user_id = :userId AND posts.approved = 0
+        ");
+
+        $this->db->bind(":userId", $currentUser, null);
+        $result = $this->db->single();
+        $result = empty($result) ? 0 : $result->notApprovedPostsCount; 
+
+        return $result;
+    }
 }

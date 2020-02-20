@@ -209,12 +209,17 @@ class Users extends Controller
         $lastUserPosts = $this->userModel->getLastPosts($userId, 2);
         $likedPostsCount = $this->likeModel->getCountOfTheUserLikedPosts($userId);
         $userLatestComments = $this->commentModel->getLatestUserComments($userId, 2);
+        $countApprovedPosts = $this->postModel->countApprovedPostsByUserId($user->id);
+        $countNotApprovedPosts = $this->postModel->countNotApprovedPostsByUserId($user->id);
+
         
         $data = [
             'user' => $user,
             'postsCount' => $userPostsCount,
             'posts' => $lastUserPosts,
-            'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount
+            'userLikedPostsCount' => $likedPostsCount->userLikedPostsCount,
+            'countApprovedPosts' => $countApprovedPosts,
+            'countNotApprovedPosts' => $countNotApprovedPosts
         ];
 
         $data['comments'] = checkIfArrAndIfEmpty($userLatestComments) ? '' : $userLatestComments;
@@ -260,6 +265,44 @@ class Users extends Controller
 
 
         $this->view('users/posts', $data);
+    }
+
+    public function getUserNotApprovedPosts($url)
+    {
+        $userId = extractUserId($url);
+        $page = extractPageNum($url);
+        $pageSize = 10;
+        $userPosts = $this->userModel->getUsersNotApprovedPostWithPag($userId, $page, $pageSize);
+        $userName =  $this->userModel->getUserById($userId);
+
+        $data = [
+            'posts' => $userPosts,
+            'page' => $page,
+            'userId' => $userId,
+            'userName' => $userName,
+            'hasNextPage' => count($userPosts) > 0,
+            'hasPrevPage' => $page > 1,
+            'nextPage' => $page + 1,
+            'prevPage' => $page - 1
+        ];
+
+        if (checkIfArrAndIfEmpty($userPosts)) {
+            $data['posts'] = '';
+            $this->view('posts/listNotApprovedPosts', $data);
+            return;
+        }
+
+        if ($_SESSION['role'] == 'admin') {
+            $notApprovedPostsCount = $this->postModel->getCountNotApprovedPostsYet();
+            $notApprovedCommentsCount = $this->commentModel->getCountNotApprovedCommentsYet();
+            $data['notApprovedPostsCount'] = $notApprovedPostsCount->count;
+            $data['notApprovedCommentsCount'] = $notApprovedCommentsCount->count;
+            $this->view('users/listNotApprovedPosts', $data);
+            return;
+        }
+
+
+        $this->view('users/listNotApprovedPosts', $data);
     }
 
     public function getLikedUserPosts($url)

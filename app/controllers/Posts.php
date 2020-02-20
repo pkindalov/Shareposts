@@ -249,6 +249,9 @@ class Posts extends Controller
         $page = (int) $page;
         $pageSize = 5;
         $posts = $this->postModel->getPostsPaginated($page, $pageSize);
+        $currentUser = $_SESSION['user_id'];
+        $countApprovedPosts = $this->postModel->countApprovedPostsByUserId($currentUser);
+        $countNotApprovedPosts = $this->postModel->countNotApprovedPostsByUserId($currentUser);
 
         $data = [
             'posts' => $posts,
@@ -257,6 +260,8 @@ class Posts extends Controller
             'hasPrevPage' => $page > 1,
             'nextPage' => $page + 1,
             'prevPage' => $page - 1,
+            'countApprovedPosts' => $countApprovedPosts,
+            'countNotApprovedPosts' => $countNotApprovedPosts
         ];
 
         //to make query about not approved posts only if admin is logged
